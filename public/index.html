@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Ideas - Product Hunt Inspiration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <header class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 mb-2">New Ideas</h1>
+      <p class="text-gray-600">Simplified build ideas inspired by Product Hunt's top launches</p>
+    </header>
+
+    <div class="mb-8">
+      <button
+        id="fetchBtn"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+      >
+        <span id="fetchBtnText">Fetch Ideas</span>
+        <span id="fetchBtnSpinner" class="hidden ml-2">⏳</span>
+      </button>
+      <div id="fetchStatus" class="mt-2 text-sm"></div>
+    </div>
+
+    <div id="ideasContainer" class="space-y-8">
+      <!-- Ideas will be loaded here -->
+    </div>
+
+    <div id="loadingMore" class="hidden text-center py-8">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <p class="mt-2 text-gray-600">Loading more ideas...</p>
+    </div>
+
+    <div id="noMore" class="hidden text-center py-8 text-gray-500">
+      No more ideas to load
+    </div>
+  </div>
+
+  <script>
+    let currentPage = 1;
+    let hasMore = true;
+    let isLoading = false;
+      let allIdeasByDate = {};
+
+    const fetchBtn = document.getElementById('fetchBtn');
+    const fetchBtnText = document.getElementById('fetchBtnText');
+    const fetchBtnSpinner = document.getElementById('fetchBtnSpinner');
+    const fetchStatus = document.getElementById('fetchStatus');
+    const ideasContainer = document.getElementById('ideasContainer');
+    const loadingMore = document.getElementById('loadingMore');
+    const noMore = document.getElementById('noMore');
+
+    async function fetchIdeas() {
+      fetchBtn.disabled = true;
+      fetchBtnText.textContent = 'Fetching...';
+      fetchBtnSpinner.classList.remove('hidden');
+      fetchStatus.textContent = '';
+      fetchStatus.className = 'mt-2 text-sm';
+
+      try {
+        const response = await fetch('/api/fetch-ideas', {
+          method: 'POST',
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          fetchStatus.textContent = `✅ Successfully fetched and generated ${data.count} ideas!`;
+          fetchStatus.className = 'mt-2 text-sm text-green-600';
+          // Reload ideas after fetching
+          currentPage = 1;
+          hasMore = true;
+          allIdeasByDate = {};
+          ideasContainer.innerHTML = '';
+          await loadIdeas();
+        } else {
+          fetchStatus.textContent = `❌ Error: ${data.error}`;
+          fetchStatus.className = 'mt-2 text-sm text-red-600';
+        }
+      } catch (error) {
+        fetchStatus.textContent = `❌ Error: ${error.message}`;
+        fetchStatus.className = 'mt-2 text-sm text-red-600';
+      } finally {
+        fetchBtn.disabled = false;
+        fetchBtnText.textContent = 'Fetch Ideas';
+        fetchBtnSpinner.classList.add('hidden');
+      }
+    }
+
+    async function loadIdeas() {
+      if (isLoading || !hasMore) return;
+      isLoading = true;
+
+      if (currentPage > 1) {
+        loadingMore.classList.remove('hidden');
+      }
+
+      try {
+        const response = await fetch(`/api/ideas?page=${currentPage}&limit=10`);
+        const data = await response.json();
+
+        if (data.ideas) {
+          // Merge with existing ideas
+          for (const [date, ideas] of Object.entries(data.ideas)) {
+            if (!allIdeasByDate[date]) {
+              allIdeasByDate[date] = [];
+            }
+            allIdeasByDate[date].push(...ideas);
+          }
+
+          renderIdeas();
+          hasMore = data.hasMore;
+          currentPage++;
+
+          if (!hasMore) {
+            noMore.classList.remove('hidden');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading ideas:', error);
+      } finally {
+        isLoading = false;
+        loadingMore.classList.add('hidden');
+      }
+    }
+
+    function renderIdeas() {
+      ideasContainer.innerHTML = '';
+
+      const sortedDates = Object.keys(allIdeasByDate).sort((a, b) => b.localeCompare(a));
+
+      for (const date of sortedDates) {
+        const dateSection = document.createElement('div');
+        dateSection.className = 'mb-8';
+
+        const dateHeader = document.createElement('h2');
+        dateHeader.className = 'text-2xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-300';
+        const dateObj = new Date(date);
+        dateHeader.textContent = dateObj.toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+        dateSection.appendChild(dateHeader);
+
+        const ideasGrid = document.createElement('div');
+        ideasGrid.className = 'grid gap-6 md:grid-cols-2 lg:grid-cols-3';
+
+        for (const idea of allIdeasByDate[date]) {
+          const ideaCard = document.createElement('div');
+          ideaCard.className = 'bg-white rounded-lg p-6';
+
+          ideaCard.innerHTML = `
+            <div class="mb-3 flex gap-3">
+              ${idea.ph_image ? `
+                <img src="${escapeHtml(idea.ph_image)}" alt="${escapeHtml(idea.ph_name)}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+              ` : ''}
+              <div class="flex-1">
+                <a href="${idea.ph_url}" target="_blank" rel="noopener noreferrer" class="text-lg font-semibold text-blue-600 hover:text-blue-800">
+                  ${escapeHtml(idea.ph_name)}
+                </a>
+                <p class="text-sm text-gray-500 mt-1">${escapeHtml(idea.ph_tagline || '')}</p>
+                <p class="text-xs text-gray-400 mt-1">${idea.ph_upvotes} upvotes</p>
+              </div>
+            </div>
+            <div class="mb-3">
+              <h3 class="text-sm font-semibold text-gray-700 mb-2">Mini Ideas:</h3>
+              ${(() => {
+                try {
+                  const miniIdeas = typeof idea.mini_idea === 'string' && idea.mini_idea.startsWith('[') 
+                    ? JSON.parse(idea.mini_idea) 
+                    : [idea.mini_idea];
+                  return miniIdeas.map((miniIdea, idx) => `
+                    <div class="mb-2 ${idx > 0 ? 'mt-2' : ''}">
+                      <p class="text-sm text-gray-600">${escapeHtml(miniIdea)}</p>
+                    </div>
+                  `).join('');
+                } catch {
+                  return `<p class="text-sm text-gray-600">${escapeHtml(idea.mini_idea || '')}</p>`;
+                }
+              })()}
+            </div>
+          `;
+
+          ideasGrid.appendChild(ideaCard);
+        }
+
+        dateSection.appendChild(ideasGrid);
+        ideasContainer.appendChild(dateSection);
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Intersection Observer for infinite scroll
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore && !isLoading) {
+        loadIdeas();
+      }
+    }, { threshold: 0.1 });
+
+    // Create a sentinel element for infinite scroll
+    const sentinel = document.createElement('div');
+    sentinel.id = 'scrollSentinel';
+    document.body.appendChild(sentinel);
+    observer.observe(sentinel);
+
+    // Event listeners
+    fetchBtn.addEventListener('click', fetchIdeas);
+
+    // Load initial ideas
+    loadIdeas();
+  </script>
+</body>
+</html>
+

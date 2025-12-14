@@ -1,0 +1,15 @@
+name = "new-ideas"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "IDEAS_DB"
+database_name = "ideas-db"
+database_id = "efbffea1-3c20-4b4c-8078-2c67a1554bc8"
+
+[env.production]
+[[env.production.d1_databases]]
+binding = "IDEAS_DB"
+database_name = "ideas-db"
+database_id = "efbffea1-3c20-4b4c-8078-2c67a1554bc8"
+

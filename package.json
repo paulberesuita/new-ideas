@@ -1,0 +1,14 @@
+{
+  "name": "new-ideas",
+  "version": "1.0.0",
+  "description": "Fetch Product Hunt launches and generate simplified build ideas using Claude Opus",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev public --d1=IDEAS_DB=ideas-db --persist-to=.wrangler/state",
+    "deploy": "wrangler pages deploy public --commit-dirty=true"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
+
