@@ -1,26 +1,23 @@
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+import { handleCorsPreflight } from '../../utils/cors';
+import { successResponse, errorResponse } from '../../utils/response';
+import { isValidDateString } from '../../utils/validation';
+import type { PagesFunctionContext } from '../../utils/types';
+
+export const onRequestOptions = async (context: { request: Request }) => {
+  return handleCorsPreflight(context.request);
 };
 
-export const onRequestOptions = async () => {
-  return new Response(null, { headers: corsHeaders });
-};
-
-export const onRequestDelete = async (context: any) => {
-  const { params, env } = context;
-  const date = params.date;
+export const onRequestDelete = async (context: PagesFunctionContext) => {
+  const { request, params, env } = context;
+  const date = params?.date;
 
   try {
     if (!date) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Date parameter is required' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+      return errorResponse('Date parameter is required', request, 400);
+    }
+
+    if (!isValidDateString(date)) {
+      return errorResponse('Invalid date format. Expected YYYY-MM-DD', request, 400);
     }
 
     // Delete all ideas for the specified date
@@ -30,23 +27,12 @@ export const onRequestDelete = async (context: any) => {
       .bind(date)
       .run();
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        deleted: result.meta.changes || 0 
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+    return successResponse(
+      { deleted: result.meta.changes || 0 },
+      request
     );
-  } catch (error: any) {
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+  } catch (error) {
+    return errorResponse(error as Error, request);
   }
 };
 

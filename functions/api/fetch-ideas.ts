@@ -1,46 +1,13 @@
-export interface Env {
-  IDEAS_DB: D1Database;
-  ANTHROPIC_API_KEY: string;
-  PRODUCT_HUNT_API_TOKEN?: string;
-}
-
-interface ProductHuntPost {
-  node: {
-    id: string;
-    name: string;
-    tagline: string;
-    description: string;
-    url: string;
-    votesCount: number;
-    thumbnail?: {
-      url: string;
-    };
-  };
-}
-
-interface ProductHuntResponse {
-  data?: {
-    posts: {
-      edges: ProductHuntPost[];
-    };
-  };
-  errors?: Array<{
-    message: string;
-    locations?: Array<{ line: number; column: number }>;
-    path?: string[];
-  }>;
-}
-
-interface Idea {
-  date: string;
-  ph_name: string;
-  ph_tagline: string;
-  ph_description: string;
-  ph_url: string;
-  ph_upvotes: number;
-  ph_image?: string;
-  mini_ideas: string[];
-}
+import { handleCorsPreflight } from '../utils/cors';
+import { successResponse, errorResponse } from '../utils/response';
+import { getTodayDateString, isValidDateString } from '../utils/validation';
+import type {
+  Env,
+  ProductHuntPost,
+  ProductHuntResponse,
+  Idea,
+  PagesFunctionContext,
+} from '../utils/types';
 
 async function fetchProductHuntLaunches(apiToken?: string, targetDate?: string): Promise<ProductHuntPost[]> {
   // Build date filter if a specific date is provided
@@ -192,7 +159,7 @@ Return a JSON array with this structure - one object for each product (${product
         ph_description: product.description,
         ph_url: product.url,
         ph_upvotes: product.upvotes,
-        ph_image: product.image || null,
+        ph_image: product.image || undefined,
         mini_ideas: ideas[idx].mini_ideas || [],
       });
     }
@@ -201,7 +168,7 @@ Return a JSON array with this structure - one object for each product (${product
   return result;
 }
 
-async function saveIdeasToDB(ideas: Idea[], db: D1Database): Promise<void> {
+async function saveIdeasToDB(ideas: Idea[], db: Env['IDEAS_DB']): Promise<void> {
   const stmt = db.prepare(`
     INSERT INTO ideas (date, ph_name, ph_tagline, ph_url, ph_upvotes, ph_image, mini_idea)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -225,35 +192,34 @@ async function saveIdeasToDB(ideas: Idea[], db: D1Database): Promise<void> {
   // Store description in ph_tagline column (we'll use it to display full description)
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+export const onRequestOptions = async (context: { request: Request }) => {
+  return handleCorsPreflight(context.request);
 };
 
-export const onRequestOptions = async () => {
-  return new Response(null, { headers: corsHeaders });
-};
-
-export const onRequestPost = async (context: any) => {
+export const onRequestPost = async (context: PagesFunctionContext) => {
   const { request, env } = context;
   const url = new URL(request.url);
   const specificDate = url.searchParams.get('date'); // Format: YYYY-MM-DD
 
   try {
     if (!env.ANTHROPIC_API_KEY) {
-      throw new Error('ANTHROPIC_API_KEY not configured');
+      return errorResponse('ANTHROPIC_API_KEY not configured', request, 500);
     }
 
     // Determine the target date (default to today)
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayDateString();
     const targetDate = specificDate || today;
+
+    // Validate date format if provided
+    if (specificDate && !isValidDateString(specificDate)) {
+      return errorResponse('Invalid date format. Expected YYYY-MM-DD', request, 400);
+    }
 
     // Fetch Product Hunt launches for the target date
     const posts = await fetchProductHuntLaunches(env.PRODUCT_HUNT_API_TOKEN, targetDate);
 
     if (posts.length === 0) {
-      throw new Error(`No Product Hunt launches found for ${targetDate}`);
+      return errorResponse(`No Product Hunt launches found for ${targetDate}`, request, 404);
     }
 
     // Generate ideas with Claude
@@ -262,19 +228,11 @@ export const onRequestPost = async (context: any) => {
     // Save to database
     await saveIdeasToDB(ideas, env.IDEAS_DB);
 
-    return new Response(
-      JSON.stringify({ success: true, count: ideas.length }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+    return successResponse(
+      { count: ideas.length },
+      request
     );
-  } catch (error: any) {
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+  } catch (error) {
+    return errorResponse(error as Error, request);
   }
 };

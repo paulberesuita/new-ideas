@@ -1,0 +1,158 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         NEW IDEAS - ARCHITECTURE                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          FRONTEND (Cloudflare Pages)                         │
+│                                                                              │
+│  ┌─────────────────┐         ┌──────────────────┐                          │
+│  │  HTML/CSS/JS    │         │  User Interface  │                          │
+│  │  Tailwind CSS   │         │  - Fetch Button  │                          │
+│  └─────────────────┘         │  - Clear Button  │                          │
+│           │                   │  - Ideas Display │                          │
+│           │                   └──────────────────┘                          │
+│           │                            │                                    │
+└───────────┼────────────────────────────┼────────────────────────────────────┘
+            │                            │
+            │ POST /api/fetch-ideas      │ GET /api/ideas
+            │ DELETE /api/ideas/:date    │
+            ▼                            ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    BACKEND (Cloudflare Pages Functions)                     │
+│                                                                              │
+│  ┌──────────────────────┐  ┌──────────────────┐  ┌──────────────────────┐ │
+│  │ fetch-ideas.ts       │  │ ideas.ts         │  │ ideas/[date].ts       │ │
+│  │ (POST endpoint)      │  │ (GET endpoint)   │  │ (DELETE endpoint)    │ │
+│  └──────────────────────┘  └──────────────────┘  └──────────────────────┘ │
+│           │                       │                        │                │
+└───────────┼───────────────────────┼────────────────────────┼────────────────┘
+            │                       │                        │
+            │                       │                        │
+            │ 1. Fetch Products     │                        │
+            ▼                       │                        │
+┌───────────────────────────────────┐                       │
+│   Product Hunt GraphQL API         │                       │
+│   api.producthunt.com              │                       │
+│   - name, tagline, description     │                       │
+│   - url, votesCount, thumbnail     │                       │
+└───────────────────────────────────┘                       │
+            │                                                 │
+            │ 2. Return Product Data                          │
+            ▼                                                 │
+┌───────────────────────────────────┐                       │
+│   Anthropic Claude Opus API       │                       │
+│   api.anthropic.com                │                       │
+│   - Generate 2 mini ideas per      │                       │
+│     product                        │                       │
+└───────────────────────────────────┘                       │
+            │                                                 │
+            │ 3. Return Generated Ideas                       │
+            ▼                                                 │
+┌───────────────────────────────────────────────────────────┐
+│                    DATABASE (Cloudflare D1)               │
+│                                                            │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │  ideas table                                        │ │
+│  │  - id, date, ph_name, ph_tagline                   │ │
+│  │  - ph_url, ph_upvotes, ph_image, mini_idea         │ │
+│  │  - created_at                                       │ │
+│  └──────────────────────────────────────────────────────┘ │
+│           ▲                        ▲                       │
+│           │                        │                       │
+│           │ 4. Save Ideas          │ Query Ideas          │
+│           │                        │ Delete by Date       │
+└───────────┼────────────────────────┼───────────────────────┘
+            │                        │
+            └────────────────────────┘
+                     │
+                     │ Return Data
+                     ▼
+            ┌──────────────────┐
+            │  Frontend        │
+            │  Displays Ideas  │
+            └──────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+
+DATA FLOW: Fetch Ideas
+
+1. User clicks "Fetch Today's Ideas"
+   │
+   ├─> Frontend sends POST /api/fetch-ideas?daysBack=0
+   │
+   ├─> Pages Function (fetch-ideas.ts):
+   │   │
+   │   ├─> Fetches top 3 products from Product Hunt
+   │   │   Query: posts(first: 3, order: VOTES)
+   │   │
+   │   ├─> Sends products to Claude Opus
+   │   │   Prompt: "Generate 2 mini ideas for each product"
+   │   │
+   │   ├─> Combines Product Hunt data + Claude ideas
+   │   │
+   │   └─> Saves to D1 database
+   │
+   └─> Returns success → Frontend reloads ideas
+
+═══════════════════════════════════════════════════════════════════════════════
+
+DATA FLOW: Display Ideas
+
+1. Page loads or user scrolls
+   │
+   ├─> Frontend sends GET /api/ideas?page=1&limit=10
+   │
+   ├─> Pages Function (ideas.ts):
+   │   │
+   │   ├─> Queries D1: SELECT * FROM ideas ORDER BY date DESC
+   │   │
+   │   ├─> Groups ideas by date
+   │   │
+   │   └─> Returns JSON: { ideas: { date: [...] }, hasMore, page }
+   │
+   └─> Frontend renders ideas grouped by date (infinite scroll)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+DATA FLOW: Clear Date
+
+1. User clicks "Clear" on a date section
+   │
+   ├─> Frontend sends DELETE /api/ideas/2025-12-14
+   │
+   ├─> Pages Function (ideas/[date].ts):
+   │   │
+   │   └─> DELETE FROM ideas WHERE date = '2025-12-14'
+   │
+   └─> Returns success → Frontend reloads ideas
+
+═══════════════════════════════════════════════════════════════════════════════
+
+TECHNOLOGY STACK
+
+┌──────────────┬──────────────────────────┬──────────────────────────────┐
+│ Layer        │ Technology                │ Purpose                      │
+├──────────────┼──────────────────────────┼──────────────────────────────┤
+│ Frontend     │ HTML/CSS/JS + Tailwind   │ User interface               │
+│ Hosting      │ Cloudflare Pages          │ Static site + Functions     │
+│ Backend      │ Pages Functions (TS)     │ API endpoints                │
+│ Database     │ Cloudflare D1 (SQLite)   │ Store ideas                  │
+│ External API │ Product Hunt GraphQL      │ Fetch trending products     │
+│ AI           │ Anthropic Claude Opus     │ Generate build ideas         │
+└──────────────┴──────────────────────────┴──────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+
+API ENDPOINTS
+
+POST   /api/fetch-ideas?daysBack=0
+       → Fetches products, generates ideas, saves to DB
+
+GET    /api/ideas?page=1&limit=10
+       → Retrieves ideas grouped by date (pagination)
+
+DELETE /api/ideas/:date
+       → Deletes all ideas for specified date
+
+═══════════════════════════════════════════════════════════════════════════════
+
