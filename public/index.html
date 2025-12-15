@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Ideas - Product Hunt Inspiration</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Spark - What will you build today?</title>
+  <!-- Version: 2.0.0 - Date Pills Feature -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -11,22 +15,32 @@
         extend: {
           colors: {
             brand: {
-              50: '#fef7ee',
-              100: '#fdedd3',
-              200: '#fad7a6',
-              300: '#f6b96e',
-              400: '#f19235',
-              500: '#ee7518',
-              600: '#df5a0e',
-              700: '#b9430e',
-              800: '#933614',
-              900: '#772f14',
+              50: '#FFF7ED',
+              100: '#FFEDD5',
+              200: '#FED7AA',
+              300: '#FDBA74',
+              400: '#FB923C',
+              500: '#F97316',
+              600: '#EA580C',
+              700: '#C2410C',
+              800: '#9A3412',
+              900: '#7C2D12',
             },
             surface: {
-              50: '#fafafa',
-              100: '#f4f4f5',
-              200: '#e4e4e7',
-            }
+              50: '#FAFAF9',
+              100: '#F5F5F4',
+              200: '#E7E5E4',
+            },
+            warm: {
+              dark: '#57534E',
+              medium: '#78716C',
+              light: '#A8A29E',
+              lighter: '#D6D3D1',
+              border: '#E7E5E4',
+            },
+            accent: '#F59E0B',
+            success: '#16A34A',
+            danger: '#DC2626',
           }
         }
       }
@@ -35,12 +49,6 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     body { font-family: 'Inter', sans-serif; }
-    .gradient-text {
-      background: linear-gradient(135deg, #ee7518 0%, #f19235 50%, #df5a0e 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
     .card-hover {
       transition: all 0.2s ease;
     }
@@ -48,19 +56,37 @@
       transform: translateY(-2px);
       box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
     }
-    .btn-gradient {
-      background: linear-gradient(135deg, #ee7518 0%, #f19235 100%);
-      transition: all 0.2s ease;
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
-    .btn-gradient:hover {
-      background: linear-gradient(135deg, #df5a0e 0%, #ee7518 100%);
-      transform: translateY(-1px);
-      box-shadow: 0 8px 16px -4px rgba(238, 117, 24, 0.4);
+    .line-clamp-none {
+      display: block;
+      -webkit-line-clamp: unset;
+      -webkit-box-orient: unset;
+      overflow: visible;
     }
-    .btn-gradient:disabled {
-      background: #d4d4d8;
-      transform: none;
-      box-shadow: none;
+    /* Hide scrollbar for date pills */
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    /* Date pill styles */
+    .date-pill {
+      background-color: #E7E5E4;
+      color: #78716C;
+    }
+    .date-pill:hover {
+      background-color: #D6D3D1;
+    }
+    .date-pill.active {
+      background-color: #F97316;
+      color: white;
     }
   </style>
 </head>
@@ -68,43 +94,61 @@
   <div class="container mx-auto px-4 py-12 max-w-6xl">
     <header class="mb-10 text-center">
       <div class="inline-flex items-center gap-3 mb-4">
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-lg">
+        <div class="w-12 h-12 rounded-xl bg-brand-500 flex items-center justify-center shadow-lg">
           <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
           </svg>
         </div>
-        <h1 class="text-4xl font-extrabold gradient-text">New Ideas</h1>
+        <h1 class="text-4xl font-extrabold text-[#1C1917]">Spark</h1>
       </div>
-      <p class="text-surface-200 text-lg max-w-xl mx-auto" style="color: #71717a;">Simplified build ideas inspired by Product Hunt's top launches</p>
+      <p class="text-lg max-w-xl mx-auto text-[#78716C] italic mb-8">What will you build today?</p>
     </header>
 
     <div class="mb-10 text-center">
       <div class="flex flex-wrap gap-3 justify-center items-center">
         <button
           id="fetchBtn"
-          class="btn-gradient text-white font-semibold py-3 px-8 rounded-xl shadow-md disabled:cursor-not-allowed inline-flex items-center gap-2"
+          class="bg-brand-500 hover:bg-brand-600 text-white font-semibold py-3 px-8 rounded-xl shadow-md transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed inline-flex items-center gap-2"
         >
           <svg id="fetchBtnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
           </svg>
-          <span id="fetchBtnText">Fetch Today's Ideas</span>
+          <span id="fetchBtnText">Get today's ideas</span>
           <svg id="fetchBtnSpinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
         </button>
-        <button
-          id="fetchPastBtn"
-          class="bg-gray-100 text-gray-700 font-medium py-3 px-6 rounded-xl hover:bg-gray-200 transition-all duration-200 inline-flex items-center gap-2"
-          title="One-time: Fetch ideas from past 2 days to add more data"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <span>Fetch Past 2 Days</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <input
+            type="date"
+            id="datePicker"
+            class="bg-[#E7E5E4] text-[#1C1917] font-medium py-3 px-4 rounded-xl border-0 focus:ring-2 focus:ring-brand-500 focus:outline-none"
+            style="background-color: #E7E5E4;"
+          />
+          <button
+            id="fetchDateBtn"
+            class="bg-white text-[#57534E] font-medium py-3 px-6 rounded-xl border border-[#D6D3D1] hover:bg-surface-50 hover:border-[#A8A29E] transition-all duration-200 inline-flex items-center gap-2 disabled:bg-surface-100 disabled:cursor-not-allowed"
+          >
+            <svg id="fetchDateIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span id="fetchDateText">Get ideas</span>
+            <svg id="fetchDateSpinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </div>
       </div>
       <div id="fetchStatus" class="mt-3 text-sm font-medium"></div>
+
+      <!-- Date Pills -->
+      <div id="datePillsContainer" class="mt-6">
+        <div id="datePills" class="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <!-- Date pills will be dynamically inserted here -->
+        </div>
+      </div>
     </div>
 
     <div id="ideasContainer" class="space-y-10">
@@ -122,10 +166,10 @@
   </div>
 
   <script>
-    let currentPage = 1;
-    let hasMore = true;
+    let availableDates = []; // All dates from database
+    let currentIdeas = []; // Ideas for currently selected date
+    let selectedDate = null; // Currently selected date (null = most recent)
     let isLoading = false;
-      let allIdeasByDate = {};
 
     const fetchBtn = document.getElementById('fetchBtn');
     const fetchBtnText = document.getElementById('fetchBtnText');
@@ -136,6 +180,17 @@
     const noMore = document.getElementById('noMore');
 
     async function fetchIdeas() {
+      // Check if we already have ideas for today
+      const today = new Date().toISOString().split('T')[0];
+      if (availableDates.includes(today)) {
+        const formattedDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>Ideas for ${formattedDate} already exist</span>`;
+        fetchStatus.className = 'mt-3 text-sm font-medium';
+        // Select today's date to show the existing ideas
+        await selectDate(today);
+        return;
+      }
+
       fetchBtn.disabled = true;
       fetchBtnText.textContent = 'Fetching...';
       fetchBtnSpinner.classList.remove('hidden');
@@ -150,56 +205,66 @@
         const data = await response.json();
 
         if (data.success) {
-          fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 text-green-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Generated ${data.count} new ideas!</span>`;
+          const today = new Date();
+          const formattedDate = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          fetchStatus.innerHTML = `<span class="text-[#16A34A] italic">${data.count} new ideas for ${formattedDate}! ✨</span>`;
           fetchStatus.className = 'mt-3 text-sm font-medium';
-          // Reload ideas after fetching
-          currentPage = 1;
-          hasMore = true;
-          allIdeasByDate = {};
-          ideasContainer.innerHTML = '';
-          await loadIdeas();
+          // Reload dates and select the most recent
+          await loadDates();
         } else {
-          fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 text-red-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>Error: ${data.error}</span>`;
+          fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${data.error}</span>`;
           fetchStatus.className = 'mt-3 text-sm font-medium';
         }
       } catch (error) {
-        fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 text-red-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>Error: ${error.message}</span>`;
+        fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error.message}</span>`;
         fetchStatus.className = 'mt-3 text-sm font-medium';
       } finally {
         fetchBtn.disabled = false;
-        fetchBtnText.textContent = "Fetch Today's Ideas";
+        fetchBtnText.textContent = "Get today's ideas";
         fetchBtnSpinner.classList.add('hidden');
       }
     }
 
-    async function loadIdeas() {
-      if (isLoading || !hasMore) return;
-      isLoading = true;
+    // Load all available dates from database
+    async function loadDates() {
+      try {
+        const response = await fetch('/api/dates');
+        const data = await response.json();
+        console.log('Dates API response:', data); // Debug
 
-      if (currentPage > 1) {
-        loadingMore.classList.remove('hidden');
+        if (data.dates && data.dates.length > 0) {
+          availableDates = data.dates;
+          console.log('Setting availableDates:', availableDates); // Debug
+          updateDatePills();
+
+          // Auto-select most recent date if none selected
+          if (availableDates.length > 0) {
+            const dateToSelect = selectedDate && availableDates.includes(selectedDate)
+              ? selectedDate
+              : availableDates[0];
+            await selectDate(dateToSelect);
+          } else {
+            ideasContainer.innerHTML = '<p class="text-center text-gray-500">No ideas yet. Click "Get today\'s ideas" to start!</p>';
+          }
+        }
+      } catch (error) {
+        console.error('Error loading dates:', error);
       }
+    }
+
+    // Load ideas for a specific date
+    async function loadIdeasForDate(date) {
+      if (isLoading) return;
+      isLoading = true;
+      loadingMore.classList.remove('hidden');
 
       try {
-        const response = await fetch(`/api/ideas?page=${currentPage}&limit=10`);
+        const response = await fetch(`/api/ideas?date=${date}`);
         const data = await response.json();
 
-        if (data.ideas) {
-          // Merge with existing ideas
-          for (const [date, ideas] of Object.entries(data.ideas)) {
-            if (!allIdeasByDate[date]) {
-              allIdeasByDate[date] = [];
-            }
-            allIdeasByDate[date].push(...ideas);
-          }
-
-          renderIdeas();
-          hasMore = data.hasMore;
-          currentPage++;
-
-          if (!hasMore) {
-            noMore.classList.remove('hidden');
-          }
+        if (data.ideas && data.ideas[date]) {
+          currentIdeas = data.ideas[date];
+          renderIdeas(date);
         }
       } catch (error) {
         console.error('Error loading ideas:', error);
@@ -209,104 +274,151 @@
       }
     }
 
-    function renderIdeas() {
+    // Select a date and load its ideas
+    async function selectDate(date) {
+      selectedDate = date;
+      updateDatePills();
+      await loadIdeasForDate(date);
+    }
+
+    function renderIdeas(date) {
       ideasContainer.innerHTML = '';
 
-      const sortedDates = Object.keys(allIdeasByDate).sort((a, b) => b.localeCompare(a));
+      if (!date || currentIdeas.length === 0) {
+        ideasContainer.innerHTML = '<p class="text-center text-gray-500">No ideas for this date.</p>';
+        return;
+      }
 
-      for (const date of sortedDates) {
-        const dateSection = document.createElement('div');
-        dateSection.className = 'mb-8';
+      const dateSection = document.createElement('div');
+      dateSection.className = 'mb-8';
 
-        const dateHeader = document.createElement('div');
-        dateHeader.className = 'text-xl font-bold text-gray-700 mb-6 pb-3 border-b-2 border-brand-200 flex items-center justify-between';
-        const dateObj = new Date(date);
-        dateHeader.innerHTML = `
-          <div class="flex items-center gap-3">
-            <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-            ${dateObj.toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </div>
-          <button 
-            onclick="clearDate('${date}')" 
-            class="text-sm text-red-600 hover:text-red-700 font-medium px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-1.5"
-            title="Clear all ideas from this date"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-            </svg>
-            Clear
-          </button>
-        `;
-        dateSection.appendChild(dateHeader);
+      const dateHeader = document.createElement('div');
+      dateHeader.className = 'text-xl font-bold text-[#1C1917] mb-6 pb-3 border-b-2 border-[#F59E0B] flex items-center justify-between';
+      // Parse date as local time to avoid timezone issues
+      const dateObj = new Date(date + 'T00:00:00');
+      dateHeader.innerHTML = `
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 text-[#F59E0B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          ${dateObj.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </div>
+        <button
+          onclick="clearDate('${date}')"
+          class="text-sm text-[#A8A29E] hover:text-[#DC2626] font-medium px-3 py-1.5 rounded-lg hover:bg-red-50 transition-all duration-200 flex items-center gap-1.5"
+          title="Clear all ideas from this date"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          Clear
+        </button>
+      `;
+      dateSection.appendChild(dateHeader);
 
-        const ideasGrid = document.createElement('div');
-        ideasGrid.className = 'grid gap-6 md:grid-cols-2 lg:grid-cols-3';
+      const ideasGrid = document.createElement('div');
+      ideasGrid.className = 'grid gap-0';
 
-        for (const idea of allIdeasByDate[date]) {
+      for (let i = 0; i < currentIdeas.length; i++) {
+          const idea = currentIdeas[i];
+
+          // Add divider before each card except the first
+          if (i > 0) {
+            const divider = document.createElement('div');
+            divider.className = 'border-t border-[#D6D3D1] my-6';
+            ideasGrid.appendChild(divider);
+          }
+
           const ideaCard = document.createElement('div');
-          ideaCard.className = 'bg-white rounded-2xl p-6 shadow-sm border border-gray-100 card-hover';
+          ideaCard.className = 'bg-white rounded-2xl p-6 shadow-sm border border-[#E7E5E4] hover:-translate-y-1 transition-all duration-200';
 
           ideaCard.innerHTML = `
-            <div class="mb-4 flex gap-4">
+            <div class="flex gap-3 items-start mb-3">
               ${idea.ph_image ? `
-                <img src="${escapeHtml(idea.ph_image)}" alt="${escapeHtml(idea.ph_name)}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0 shadow-sm" />
+                <img src="${escapeHtml(idea.ph_image)}" alt="${escapeHtml(idea.ph_name)}" class="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-[#E7E5E4]" />
               ` : `
-                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center flex-shrink-0">
-                  <svg class="w-7 h-7 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0 border border-[#E7E5E4]">
+                  <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                   </svg>
                 </div>
               `}
               <div class="flex-1 min-w-0">
-                <a href="${idea.ph_url}" target="_blank" rel="noopener noreferrer" class="text-base font-semibold text-gray-900 hover:text-brand-600 transition-colors block truncate">
+                <a href="${idea.ph_url}" target="_blank" rel="noopener noreferrer" class="text-base font-semibold text-[#1C1917] hover:text-brand-600 transition-all duration-200 block truncate">
                   ${escapeHtml(idea.ph_name)}
                 </a>
-                <p class="text-sm text-gray-500 mt-1 line-clamp-2">${escapeHtml(idea.ph_tagline || '')}</p>
-                <div class="flex items-center gap-1 mt-2">
-                  <svg class="w-4 h-4 text-brand-500" fill="currentColor" viewBox="0 0 20 20">
+                <div class="flex items-center gap-1 mt-1">
+                  <svg class="w-3.5 h-3.5 text-[#A8A29E]" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path>
                   </svg>
-                  <span class="text-xs font-medium text-gray-500">${idea.ph_upvotes.toLocaleString()}</span>
+                  <span class="text-xs font-medium text-[#A8A29E]">${idea.ph_upvotes.toLocaleString()} upvotes</span>
                 </div>
               </div>
             </div>
-            <div class="pt-4 border-t border-gray-100">
-              <h3 class="text-xs font-semibold text-brand-600 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+            <div class="mb-4">
+              <p class="text-sm text-[#78716C] leading-relaxed line-clamp-3 tagline-text">${escapeHtml(idea.ph_tagline || '')}</p>
+              <button class="read-more-btn hidden text-xs font-medium text-brand-600 hover:text-brand-700 mt-1 transition-all duration-200" onclick="toggleReadMore(this)">Read more</button>
+            </div>
+            <div class="pt-4 border-t border-[#E7E5E4]">
+              <h3 class="text-xs font-medium text-[#78716C] uppercase tracking-wider mb-3 flex items-center gap-2">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
                 Build Ideas
               </h3>
+              <div class="space-y-3">
               ${(() => {
                 try {
                   const miniIdeas = typeof idea.mini_idea === 'string' && idea.mini_idea.startsWith('[')
                     ? JSON.parse(idea.mini_idea)
                     : [idea.mini_idea];
                   return miniIdeas.map((miniIdea, idx) => `
-                    <div class="flex gap-2 ${idx > 0 ? 'mt-3' : ''}">
-                      <span class="text-brand-400 mt-0.5">•</span>
-                      <p class="text-sm text-gray-600 leading-relaxed">${escapeHtml(miniIdea)}</p>
+                    <div class="flex gap-2.5 items-start ${idx > 0 ? 'pt-3 border-t border-[#E7E5E4]' : ''}">
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B] mt-2 flex-shrink-0"></span>
+                      <p class="text-sm text-[#57534E] leading-relaxed">${escapeHtml(miniIdea)}</p>
                     </div>
                   `).join('');
                 } catch {
-                  return `<p class="text-sm text-gray-600 leading-relaxed">${escapeHtml(idea.mini_idea || '')}</p>`;
+                  return `<p class="text-sm text-[#57534E] leading-relaxed">${escapeHtml(idea.mini_idea || '')}</p>`;
                 }
               })()}
+              </div>
             </div>
           `;
 
-          ideasGrid.appendChild(ideaCard);
-        }
+        ideasGrid.appendChild(ideaCard);
+      }
 
-        dateSection.appendChild(ideasGrid);
-        ideasContainer.appendChild(dateSection);
+      dateSection.appendChild(ideasGrid);
+      ideasContainer.appendChild(dateSection);
+
+      // Check for text overflow and show "Read more" buttons
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.tagline-text').forEach(el => {
+          if (el.scrollHeight > el.clientHeight) {
+            el.nextElementSibling.classList.remove('hidden');
+          }
+        });
+      });
+    }
+
+    function toggleReadMore(btn) {
+      const textEl = btn.previousElementSibling;
+      const isExpanded = textEl.classList.contains('line-clamp-none');
+
+      if (isExpanded) {
+        textEl.classList.remove('line-clamp-none');
+        textEl.classList.add('line-clamp-3');
+        btn.textContent = 'Read more';
+      } else {
+        textEl.classList.remove('line-clamp-3');
+        textEl.classList.add('line-clamp-none');
+        btn.textContent = 'Show less';
       }
     }
 
@@ -316,54 +428,104 @@
       return div.innerHTML;
     }
 
-    // Intersection Observer for infinite scroll
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore && !isLoading) {
-        loadIdeas();
+    function updateDatePills() {
+      console.log('updateDatePills called, availableDates:', availableDates); // Debug
+      const datePillsContainer = document.getElementById('datePillsContainer');
+      const datePills = document.getElementById('datePills');
+
+      // Clear existing pills
+      datePills.innerHTML = '';
+
+      if (availableDates.length === 0) {
+        datePillsContainer.style.display = 'none';
+        return;
       }
-    }, { threshold: 0.1 });
 
-    // Create a sentinel element for infinite scroll
-    const sentinel = document.createElement('div');
-    sentinel.id = 'scrollSentinel';
-    document.body.appendChild(sentinel);
-    observer.observe(sentinel);
+      // Show pills container
+      datePillsContainer.style.display = 'block';
+      console.log('Pills container should be visible now'); // Debug
 
-    async function fetchPastDays() {
-      const fetchPastBtn = document.getElementById('fetchPastBtn');
-      fetchPastBtn.disabled = true;
-      fetchPastBtn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Fetching...</span>';
+      // Create a pill for each date
+      for (const date of availableDates) {
+        const dateObj = new Date(date + 'T00:00:00');
+        const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+        const pill = document.createElement('button');
+        pill.className = `date-pill flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${selectedDate === date ? 'active' : ''}`;
+        pill.textContent = formattedDate;
+        pill.onclick = () => selectDate(date);
+
+        datePills.appendChild(pill);
+        console.log('Added pill for date:', date, formattedDate); // Debug
+      }
+    }
+
+    async function fetchDate() {
+      const datePicker = document.getElementById('datePicker');
+      const fetchDateBtn = document.getElementById('fetchDateBtn');
+      const fetchDateText = document.getElementById('fetchDateText');
+      const fetchDateIcon = document.getElementById('fetchDateIcon');
+      const fetchDateSpinner = document.getElementById('fetchDateSpinner');
+
+      const pickedDate = datePicker.value;
+      if (!pickedDate) {
+        fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-50 text-yellow-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>Please select a date first</span>`;
+        fetchStatus.className = 'mt-3 text-sm font-medium';
+        return;
+      }
+
+      // Check if we already have ideas for the selected date
+      if (availableDates.includes(pickedDate)) {
+        const dateObj = new Date(pickedDate + 'T00:00:00');
+        const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>Ideas for ${formattedDate} already exist</span>`;
+        fetchStatus.className = 'mt-3 text-sm font-medium';
+        // Select the date to show the existing ideas
+        await selectDate(pickedDate);
+        return;
+      }
+
+      fetchDateBtn.disabled = true;
+      fetchDateText.textContent = 'Fetching...';
+      fetchDateIcon.classList.add('hidden');
+      fetchDateSpinner.classList.remove('hidden');
+      fetchStatus.textContent = '';
+      fetchStatus.className = 'mt-2 text-sm';
 
       try {
-        const response = await fetch('/api/fetch-ideas?daysBack=2', {
+        const response = await fetch(`/api/fetch-ideas?date=${pickedDate}`, {
           method: 'POST',
         });
 
         const data = await response.json();
 
         if (data.success) {
-          fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 text-green-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Generated ${data.count} new ideas from past 2 days!</span>`;
+          // Parse date as local time to avoid timezone issues
+          const dateObj = new Date(pickedDate + 'T00:00:00');
+          const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          fetchStatus.innerHTML = `<span class="text-[#16A34A] italic">${data.count} new ideas for ${formattedDate}! ✨</span>`;
           fetchStatus.className = 'mt-3 text-sm font-medium';
-          currentPage = 1;
-          hasMore = true;
-          allIdeasByDate = {};
-          ideasContainer.innerHTML = '';
-          await loadIdeas();
+          // Reload dates and select the newly fetched date
+          selectedDate = pickedDate;
+          await loadDates();
         } else {
-          fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 text-red-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>Error: ${data.error}</span>`;
+          fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${data.error}</span>`;
           fetchStatus.className = 'mt-3 text-sm font-medium';
         }
       } catch (error) {
-        fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 text-red-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>Error: ${error.message}</span>`;
+        fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error.message}</span>`;
         fetchStatus.className = 'mt-3 text-sm font-medium';
       } finally {
-        fetchPastBtn.disabled = false;
-        fetchPastBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Fetch Past 2 Days</span>';
+        fetchDateBtn.disabled = false;
+        fetchDateText.textContent = 'Get ideas';
+        fetchDateIcon.classList.remove('hidden');
+        fetchDateSpinner.classList.add('hidden');
       }
     }
 
     async function clearDate(date) {
-      if (!confirm(`Are you sure you want to delete all ideas from ${new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}?`)) {
+      // Parse date as local time to avoid timezone issues
+      if (!confirm(`Are you sure you want to delete all ideas from ${new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}?`)) {
         return;
       }
 
@@ -375,12 +537,9 @@
         const data = await response.json();
 
         if (data.success) {
-          // Reload ideas
-          currentPage = 1;
-          hasMore = true;
-          allIdeasByDate = {};
-          ideasContainer.innerHTML = '';
-          await loadIdeas();
+          // Reload dates (will auto-select first available)
+          selectedDate = null;
+          await loadDates();
         } else {
           alert(`Error: ${data.error}`);
         }
@@ -391,10 +550,16 @@
 
     // Event listeners
     fetchBtn.addEventListener('click', fetchIdeas);
-    document.getElementById('fetchPastBtn').addEventListener('click', fetchPastDays);
+    document.getElementById('fetchDateBtn').addEventListener('click', fetchDate);
 
-    // Load initial ideas
-    loadIdeas();
+    // Initialize date picker with today's date as max
+    const datePicker = document.getElementById('datePicker');
+    const today = new Date().toISOString().split('T')[0];
+    datePicker.max = today;
+    datePicker.value = today;
+
+    // Load initial dates and ideas
+    loadDates();
   </script>
 </body>
 </html>

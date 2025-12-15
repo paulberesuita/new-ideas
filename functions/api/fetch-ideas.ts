@@ -9,6 +9,7 @@ interface ProductHuntPost {
     id: string;
     name: string;
     tagline: string;
+    description: string;
     url: string;
     votesCount: number;
     thumbnail?: {
@@ -34,22 +35,32 @@ interface Idea {
   date: string;
   ph_name: string;
   ph_tagline: string;
+  ph_description: string;
   ph_url: string;
   ph_upvotes: number;
   ph_image?: string;
   mini_ideas: string[];
 }
 
-async function fetchProductHuntLaunches(apiToken?: string, daysBack: number = 0): Promise<ProductHuntPost[]> {
-  // Fetch top posts (Product Hunt API doesn't support date filtering well, so we get top posts)
+async function fetchProductHuntLaunches(apiToken?: string, targetDate?: string): Promise<ProductHuntPost[]> {
+  // Build date filter if a specific date is provided
+  let dateFilter = '';
+  if (targetDate) {
+    // Create date range for the specific day (start of day to end of day in UTC)
+    const startDate = `${targetDate}T00:00:00Z`;
+    const endDate = `${targetDate}T23:59:59Z`;
+    dateFilter = `, postedAfter: "${startDate}", postedBefore: "${endDate}"`;
+  }
+
   const query = `
     query {
-      posts(first: ${3 * (daysBack + 1)}, order: VOTES) {
+      posts(first: 3, order: VOTES${dateFilter}) {
         edges {
           node {
             id
             name
             tagline
+            description
             url
             votesCount
             thumbnail {
@@ -85,40 +96,52 @@ async function fetchProductHuntLaunches(apiToken?: string, daysBack: number = 0)
   }
 
   const data: ProductHuntResponse = await response.json();
-  
+
   // Check for GraphQL errors
   if (data.errors) {
     throw new Error(`Product Hunt API GraphQL errors: ${JSON.stringify(data.errors)}`);
   }
-  
+
   if (!data.data || !data.data.posts) {
     throw new Error(`Invalid response from Product Hunt API: ${JSON.stringify(data)}`);
   }
-  
+
   return data.data.posts.edges;
 }
 
 async function generateIdeasWithClaude(
   posts: ProductHuntPost[],
-  apiKey: string
+  apiKey: string,
+  targetDate: string
 ): Promise<Idea[]> {
   const products = posts.map((p) => ({
     name: p.node.name,
     tagline: p.node.tagline,
+    description: p.node.description || p.node.tagline,
     url: p.node.url,
     upvotes: p.node.votesCount,
     image: p.node.thumbnail?.url || null,
   }));
 
-  const prompt = `Analyze these top 3 Product Hunt launches and generate 2 simplified build ideas for each product. For each product, provide 2 different mini_ideas - simplified versions that could be built.
+  const productCount = products.length;
+  const prompt = `You are a creative indie hacker looking for weekend project ideas. Analyze these top ${productCount} Product Hunt launches and use them as INSPIRATION to generate 3 unique project ideas for each.
+
+IMPORTANT GUIDELINES:
+- Ideas should be buildable by a solo developer in a weekend
+- Focus on web apps or Chrome extensions
+- NO ideas involving embedding external content (TikTok, YouTube, etc.)
+- AI agent ideas are encouraged - automations, bots, or AI-powered tools
+- Don't just simplify the original product - create something NEW inspired by the core concept
+- Each idea should be 1-2 sentences describing what it does and why it's useful
+- Be specific and actionable
 
 Products:
-${products.map((p, i) => `${i + 1}. ${p.name} - ${p.tagline} (${p.upvotes} upvotes)`).join('\n')}
+${products.map((p, i) => `${i + 1}. ${p.name} - ${p.tagline}`).join('\n')}
 
-Return a JSON array with this structure for each product:
+Return a JSON array with this structure - one object for each product (${productCount} total):
 [
   {
-    "mini_ideas": ["first simplified idea", "second simplified idea"]
+    "mini_ideas": ["first idea", "second idea", "third idea"]
   }
 ]`;
 
@@ -130,8 +153,8 @@ Return a JSON array with this structure for each product:
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-3-opus-20240229',
-      max_tokens: 2000,
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 3000,
       messages: [
         {
           role: 'user',
@@ -148,7 +171,7 @@ Return a JSON array with this structure for each product:
 
   const data = await response.json();
   const content = data.content[0].text;
-  
+
   // Extract JSON from the response (Claude might wrap it in markdown)
   const jsonMatch = content.match(/\[[\s\S]*\]/);
   if (!jsonMatch) {
@@ -158,37 +181,23 @@ Return a JSON array with this structure for each product:
   const ideas = JSON.parse(jsonMatch[0]);
 
   // Combine with Product Hunt data
-  // For past days, we'll assign dates going backwards
-  const today = new Date();
   const result: Idea[] = [];
-  
-  // Group products into chunks of 3 (one per day)
-  const productsPerDay = 3;
-  for (let dayOffset = 0; dayOffset <= daysBack; dayOffset++) {
-    const targetDate = new Date(today);
-    targetDate.setDate(targetDate.getDate() - dayOffset);
-    const dateStr = targetDate.toISOString().split('T')[0];
-    
-    const startIdx = dayOffset * productsPerDay;
-    const endIdx = startIdx + productsPerDay;
-    const dayProducts = products.slice(startIdx, endIdx);
-    const dayIdeas = ideas.slice(startIdx, endIdx);
-    
-    dayProducts.forEach((product, idx) => {
-      if (product && dayIdeas[idx]) {
-        result.push({
-          date: dateStr,
-          ph_name: product.name,
-          ph_tagline: product.tagline,
-          ph_url: product.url,
-          ph_upvotes: product.upvotes,
-          ph_image: product.image || null,
-          mini_ideas: dayIdeas[idx].mini_ideas || [],
-        });
-      }
-    });
-  }
-  
+
+  products.forEach((product, idx) => {
+    if (product && ideas[idx]) {
+      result.push({
+        date: targetDate,
+        ph_name: product.name,
+        ph_tagline: product.tagline,
+        ph_description: product.description,
+        ph_url: product.url,
+        ph_upvotes: product.upvotes,
+        ph_image: product.image || null,
+        mini_ideas: ideas[idx].mini_ideas || [],
+      });
+    }
+  });
+
   return result;
 }
 
@@ -205,7 +214,7 @@ async function saveIdeasToDB(ideas: Idea[], db: D1Database): Promise<void> {
       .bind(
         idea.date,
         idea.ph_name,
-        idea.ph_tagline,
+        idea.ph_description || idea.ph_tagline,
         idea.ph_url,
         idea.ph_upvotes,
         idea.ph_image || null,
@@ -213,6 +222,7 @@ async function saveIdeasToDB(ideas: Idea[], db: D1Database): Promise<void> {
       )
       .run();
   }
+  // Store description in ph_tagline column (we'll use it to display full description)
 }
 
 const corsHeaders = {
@@ -228,17 +238,26 @@ export const onRequestOptions = async () => {
 export const onRequestPost = async (context: any) => {
   const { request, env } = context;
   const url = new URL(request.url);
-  const daysBack = parseInt(url.searchParams.get('daysBack') || '0');
+  const specificDate = url.searchParams.get('date'); // Format: YYYY-MM-DD
 
   try {
-    // Fetch Product Hunt launches (default: today only, but can fetch past days)
-    const posts = await fetchProductHuntLaunches(env.PRODUCT_HUNT_API_TOKEN, daysBack);
-
-    // Generate ideas with Claude
     if (!env.ANTHROPIC_API_KEY) {
       throw new Error('ANTHROPIC_API_KEY not configured');
     }
-    const ideas = await generateIdeasWithClaude(posts, env.ANTHROPIC_API_KEY);
+
+    // Determine the target date (default to today)
+    const today = new Date().toISOString().split('T')[0];
+    const targetDate = specificDate || today;
+
+    // Fetch Product Hunt launches for the target date
+    const posts = await fetchProductHuntLaunches(env.PRODUCT_HUNT_API_TOKEN, targetDate);
+
+    if (posts.length === 0) {
+      throw new Error(`No Product Hunt launches found for ${targetDate}`);
+    }
+
+    // Generate ideas with Claude
+    const ideas = await generateIdeasWithClaude(posts, env.ANTHROPIC_API_KEY, targetDate);
 
     // Save to database
     await saveIdeasToDB(ideas, env.IDEAS_DB);

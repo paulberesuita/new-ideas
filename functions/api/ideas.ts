@@ -13,17 +13,30 @@ export const onRequestGet = async (context: any) => {
   const url = new URL(request.url);
 
   try {
-    const page = parseInt(url.searchParams.get('page') || '1');
-    const limit = parseInt(url.searchParams.get('limit') || '10');
-    const offset = (page - 1) * limit;
+    const filterDate = url.searchParams.get('date'); // Optional: filter by specific date
 
-    const { results } = await env.IDEAS_DB.prepare(`
-      SELECT * FROM ideas
-      ORDER BY date DESC, created_at DESC
-      LIMIT ? OFFSET ?
-    `)
-      .bind(limit, offset)
-      .all();
+    let results;
+    if (filterDate) {
+      // Fetch ideas for a specific date
+      const query = await env.IDEAS_DB.prepare(`
+        SELECT * FROM ideas
+        WHERE date = ?
+        ORDER BY created_at DESC
+      `).bind(filterDate).all();
+      results = query.results;
+    } else {
+      // Fetch all ideas (for backwards compatibility)
+      const page = parseInt(url.searchParams.get('page') || '1');
+      const limit = parseInt(url.searchParams.get('limit') || '30');
+      const offset = (page - 1) * limit;
+
+      const query = await env.IDEAS_DB.prepare(`
+        SELECT * FROM ideas
+        ORDER BY date DESC, created_at DESC
+        LIMIT ? OFFSET ?
+      `).bind(limit, offset).all();
+      results = query.results;
+    }
 
     // Group by date
     const grouped: Record<string, any[]> = {};
@@ -34,13 +47,21 @@ export const onRequestGet = async (context: any) => {
       grouped[idea.date].push(idea);
     }
 
-    // Check if there are more results
-    const { results: countResults } = await env.IDEAS_DB.prepare(`
-      SELECT COUNT(*) as total FROM ideas
-    `).first();
+    // Check if there are more results (only relevant when not filtering by date)
+    let hasMore = false;
+    let page = 1;
+    if (!filterDate) {
+      page = parseInt(url.searchParams.get('page') || '1');
+      const limit = parseInt(url.searchParams.get('limit') || '30');
+      const offset = (page - 1) * limit;
 
-    const total = (countResults as any)?.total || 0;
-    const hasMore = offset + limit < total;
+      const countResult = await env.IDEAS_DB.prepare(`
+        SELECT COUNT(*) as total FROM ideas
+      `).first();
+
+      const total = (countResult as any)?.total || 0;
+      hasMore = offset + limit < total;
+    }
 
     return new Response(
       JSON.stringify({
