@@ -207,12 +207,15 @@
         if (data.success) {
           const today = new Date();
           const formattedDate = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-          fetchStatus.innerHTML = `<span class="text-[#16A34A] italic">${data.count} new ideas for ${formattedDate}! ✨</span>`;
+          // Handle both old format { count: ... } and new format { data: { count: ... } }
+          const count = data.data?.count || data.count || 0;
+          fetchStatus.innerHTML = `<span class="text-[#16A34A] italic">${count} new ideas for ${formattedDate}! ✨</span>`;
           fetchStatus.className = 'mt-3 text-sm font-medium';
           // Reload dates and select the most recent
           await loadDates();
         } else {
-          fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${data.error}</span>`;
+          const error = data.data?.error || data.error || 'Unknown error';
+          fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error}</span>`;
           fetchStatus.className = 'mt-3 text-sm font-medium';
         }
       } catch (error) {
@@ -232,8 +235,11 @@
         const data = await response.json();
         console.log('Dates API response:', data); // Debug
 
-        if (data.dates && data.dates.length > 0) {
-          availableDates = data.dates;
+        // Handle both old format { dates: [...] } and new format { success: true, data: { dates: [...] } }
+        const dates = data.data?.dates || data.dates || [];
+        
+        if (dates && dates.length > 0) {
+          availableDates = dates;
           console.log('Setting availableDates:', availableDates); // Debug
           updateDatePills();
 
@@ -262,8 +268,15 @@
         const response = await fetch(`/api/ideas?date=${date}`);
         const data = await response.json();
 
-        if (data.ideas && data.ideas[date]) {
-          currentIdeas = data.ideas[date];
+        // Handle both old format { ideas: {...} } and new format { success: true, data: { ideas: {...} } }
+        const ideasData = data.data || data;
+        
+        if (ideasData.ideas && ideasData.ideas[date]) {
+          currentIdeas = ideasData.ideas[date];
+          renderIdeas(date);
+        } else {
+          // No ideas for this date
+          currentIdeas = [];
           renderIdeas(date);
         }
       } catch (error) {
@@ -365,26 +378,58 @@
               <button class="read-more-btn hidden text-xs font-medium text-brand-600 hover:text-brand-700 mt-1 transition-all duration-200" onclick="toggleReadMore(this)">Read more</button>
             </div>
             <div class="pt-4 border-t border-[#E7E5E4]">
-              <h3 class="text-xs font-medium text-[#78716C] uppercase tracking-wider mb-3 flex items-center gap-2">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                </svg>
-                Build Ideas
-              </h3>
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-medium text-[#78716C] uppercase tracking-wider flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                  </svg>
+                  Build Ideas
+                </h3>
+                <button
+                  onclick="refreshIdeas(${idea.id || 'null'}, this)"
+                  class="text-xs font-medium text-[#78716C] hover:text-brand-600 transition-all duration-200 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-brand-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Generate fresh ideas for this product"
+                >
+                  <svg id="refresh-icon-${idea.id || ''}" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  </svg>
+                  <span id="refresh-text-${idea.id || ''}">Refresh</span>
+                  <svg id="refresh-spinner-${idea.id || ''}" class="hidden w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </button>
+              </div>
               <div class="space-y-3">
               ${(() => {
                 try {
-                  const miniIdeas = typeof idea.mini_idea === 'string' && idea.mini_idea.startsWith('[')
-                    ? JSON.parse(idea.mini_idea)
-                    : [idea.mini_idea];
+                  // Handle both old format (mini_idea as JSON string) and new format (mini_ideas as array)
+                  let miniIdeas = [];
+                  if (idea.mini_ideas && Array.isArray(idea.mini_ideas)) {
+                    // New format: already an array
+                    miniIdeas = idea.mini_ideas;
+                  } else if (idea.mini_idea) {
+                    // Old format: JSON string that needs parsing
+                    if (typeof idea.mini_idea === 'string' && idea.mini_idea.startsWith('[')) {
+                      miniIdeas = JSON.parse(idea.mini_idea);
+                    } else {
+                      miniIdeas = [idea.mini_idea];
+                    }
+                  }
+                  
+                  if (miniIdeas.length === 0) {
+                    return '<p class="text-sm text-[#57534E] leading-relaxed italic">No build ideas available</p>';
+                  }
+                  
                   return miniIdeas.map((miniIdea, idx) => `
                     <div class="flex gap-2.5 items-start ${idx > 0 ? 'pt-3 border-t border-[#E7E5E4]' : ''}">
                       <span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B] mt-2 flex-shrink-0"></span>
                       <p class="text-sm text-[#57534E] leading-relaxed">${escapeHtml(miniIdea)}</p>
                     </div>
                   `).join('');
-                } catch {
-                  return `<p class="text-sm text-[#57534E] leading-relaxed">${escapeHtml(idea.mini_idea || '')}</p>`;
+                } catch (error) {
+                  console.error('Error parsing mini ideas:', error, idea);
+                  return '<p class="text-sm text-[#57534E] leading-relaxed italic">Error loading build ideas</p>';
                 }
               })()}
               </div>
@@ -503,13 +548,18 @@
           // Parse date as local time to avoid timezone issues
           const dateObj = new Date(pickedDate + 'T00:00:00');
           const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-          fetchStatus.innerHTML = `<span class="text-[#16A34A] italic">${data.count} new ideas for ${formattedDate}! ✨</span>`;
+          // Handle both old format { count: ... } and new format { data: { count: ... } }
+          const count = data.data?.count || data.count || 0;
+          fetchStatus.innerHTML = `<span class="text-[#16A34A] italic">${count} new ideas for ${formattedDate}! ✨</span>`;
           fetchStatus.className = 'mt-3 text-sm font-medium';
           // Reload dates and select the newly fetched date
           selectedDate = pickedDate;
           await loadDates();
+          // Explicitly load ideas for the fetched date to ensure they're displayed
+          await loadIdeasForDate(pickedDate);
         } else {
-          fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${data.error}</span>`;
+          const error = data.data?.error || data.error || 'Unknown error';
+          fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error}</span>`;
           fetchStatus.className = 'mt-3 text-sm font-medium';
         }
       } catch (error) {
@@ -520,6 +570,55 @@
         fetchDateText.textContent = 'Get ideas';
         fetchDateIcon.classList.remove('hidden');
         fetchDateSpinner.classList.add('hidden');
+      }
+    }
+
+    async function refreshIdeas(ideaId, button) {
+      if (!ideaId) {
+        alert('Error: Idea ID not found');
+        return;
+      }
+
+      const refreshIcon = document.getElementById(`refresh-icon-${ideaId}`);
+      const refreshText = document.getElementById(`refresh-text-${ideaId}`);
+      const refreshSpinner = document.getElementById(`refresh-spinner-${ideaId}`);
+
+      // Disable button and show loading state
+      button.disabled = true;
+      if (refreshIcon) refreshIcon.classList.add('hidden');
+      if (refreshText) refreshText.textContent = 'Refreshing...';
+      if (refreshSpinner) refreshSpinner.classList.remove('hidden');
+
+      try {
+        const response = await fetch(`/api/ideas/${ideaId}/refresh`, {
+          method: 'POST',
+        });
+
+        const data = await response.json();
+
+        if (data.success || (data.data && data.data.mini_ideas)) {
+          // Handle both old and new response formats
+          const newMiniIdeas = data.data?.mini_ideas || data.mini_ideas || [];
+          
+          // Update the idea in currentIdeas array
+          const ideaIndex = currentIdeas.findIndex(idea => idea.id === ideaId);
+          if (ideaIndex !== -1) {
+            currentIdeas[ideaIndex].mini_ideas = newMiniIdeas;
+            // Re-render ideas for the current date
+            renderIdeas(selectedDate);
+          }
+        } else {
+          const error = data.data?.error || data.error || 'Unknown error';
+          alert(`Error refreshing ideas: ${error}`);
+        }
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+      } finally {
+        // Re-enable button and restore state
+        button.disabled = false;
+        if (refreshIcon) refreshIcon.classList.remove('hidden');
+        if (refreshText) refreshText.textContent = 'Refresh';
+        if (refreshSpinner) refreshSpinner.classList.add('hidden');
       }
     }
 
@@ -541,7 +640,8 @@
           selectedDate = null;
           await loadDates();
         } else {
-          alert(`Error: ${data.error}`);
+          const error = data.data?.error || data.error || 'Unknown error';
+          alert(`Error: ${error}`);
         }
       } catch (error) {
         alert(`Error: ${error.message}`);

@@ -19,8 +19,9 @@ export function parseMiniIdeas(row: IdeaRow): string[] {
 /**
  * Convert database row to Idea object
  */
-export function rowToIdea(row: IdeaRow): Idea {
+export function rowToIdea(row: IdeaRow): Idea & { id: number } {
   return {
+    id: row.id,
     date: row.date,
     ph_name: row.ph_name,
     ph_tagline: row.ph_tagline,
