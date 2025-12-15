@@ -40,14 +40,11 @@ interface Idea {
   mini_ideas: string[];
 }
 
-async function fetchProductHuntLaunches(apiToken?: string): Promise<ProductHuntPost[]> {
-  // Get today's date in YYYY-MM-DD format (Product Hunt uses UTC)
-  const today = new Date().toISOString().split('T')[0];
-  
-  // Try without postedAfter first, as it might not be a valid filter
+async function fetchProductHuntLaunches(apiToken?: string, daysBack: number = 0): Promise<ProductHuntPost[]> {
+  // Fetch top posts (Product Hunt API doesn't support date filtering well, so we get top posts)
   const query = `
     query {
-      posts(first: 3, order: VOTES) {
+      posts(first: ${3 * (daysBack + 1)}, order: VOTES) {
         edges {
           node {
             id
@@ -161,15 +158,38 @@ Return a JSON array with this structure for each product:
   const ideas = JSON.parse(jsonMatch[0]);
 
   // Combine with Product Hunt data
-  return ideas.map((idea: any, index: number) => ({
-    date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
-    ph_name: products[index].name,
-    ph_tagline: products[index].tagline,
-    ph_url: products[index].url,
-    ph_upvotes: products[index].upvotes,
-    ph_image: products[index].image || null,
-    mini_ideas: idea.mini_ideas || [],
-  }));
+  // For past days, we'll assign dates going backwards
+  const today = new Date();
+  const result: Idea[] = [];
+  
+  // Group products into chunks of 3 (one per day)
+  const productsPerDay = 3;
+  for (let dayOffset = 0; dayOffset <= daysBack; dayOffset++) {
+    const targetDate = new Date(today);
+    targetDate.setDate(targetDate.getDate() - dayOffset);
+    const dateStr = targetDate.toISOString().split('T')[0];
+    
+    const startIdx = dayOffset * productsPerDay;
+    const endIdx = startIdx + productsPerDay;
+    const dayProducts = products.slice(startIdx, endIdx);
+    const dayIdeas = ideas.slice(startIdx, endIdx);
+    
+    dayProducts.forEach((product, idx) => {
+      if (product && dayIdeas[idx]) {
+        result.push({
+          date: dateStr,
+          ph_name: product.name,
+          ph_tagline: product.tagline,
+          ph_url: product.url,
+          ph_upvotes: product.upvotes,
+          ph_image: product.image || null,
+          mini_ideas: dayIdeas[idx].mini_ideas || [],
+        });
+      }
+    });
+  }
+  
+  return result;
 }
 
 async function saveIdeasToDB(ideas: Idea[], db: D1Database): Promise<void> {
@@ -206,11 +226,13 @@ export const onRequestOptions = async () => {
 };
 
 export const onRequestPost = async (context: any) => {
-  const { env } = context;
+  const { request, env } = context;
+  const url = new URL(request.url);
+  const daysBack = parseInt(url.searchParams.get('daysBack') || '0');
 
   try {
-    // Fetch top 3 Product Hunt launches
-    const posts = await fetchProductHuntLaunches(env.PRODUCT_HUNT_API_TOKEN);
+    // Fetch Product Hunt launches (default: today only, but can fetch past days)
+    const posts = await fetchProductHuntLaunches(env.PRODUCT_HUNT_API_TOKEN, daysBack);
 
     // Generate ideas with Claude
     if (!env.ANTHROPIC_API_KEY) {

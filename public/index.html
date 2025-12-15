@@ -5,36 +5,119 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Ideas - Product Hunt Inspiration</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fef7ee',
+              100: '#fdedd3',
+              200: '#fad7a6',
+              300: '#f6b96e',
+              400: '#f19235',
+              500: '#ee7518',
+              600: '#df5a0e',
+              700: '#b9430e',
+              800: '#933614',
+              900: '#772f14',
+            },
+            surface: {
+              50: '#fafafa',
+              100: '#f4f4f5',
+              200: '#e4e4e7',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-text {
+      background: linear-gradient(135deg, #ee7518 0%, #f19235 50%, #df5a0e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .card-hover {
+      transition: all 0.2s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+    }
+    .btn-gradient {
+      background: linear-gradient(135deg, #ee7518 0%, #f19235 100%);
+      transition: all 0.2s ease;
+    }
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #df5a0e 0%, #ee7518 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px -4px rgba(238, 117, 24, 0.4);
+    }
+    .btn-gradient:disabled {
+      background: #d4d4d8;
+      transform: none;
+      box-shadow: none;
+    }
+  </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <div class="container mx-auto px-4 py-8 max-w-6xl">
-    <header class="mb-8">
-      <h1 class="text-4xl font-bold text-gray-900 mb-2">New Ideas</h1>
-      <p class="text-gray-600">Simplified build ideas inspired by Product Hunt's top launches</p>
+<body class="bg-surface-50 min-h-screen">
+  <div class="container mx-auto px-4 py-12 max-w-6xl">
+    <header class="mb-10 text-center">
+      <div class="inline-flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-lg">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+          </svg>
+        </div>
+        <h1 class="text-4xl font-extrabold gradient-text">New Ideas</h1>
+      </div>
+      <p class="text-surface-200 text-lg max-w-xl mx-auto" style="color: #71717a;">Simplified build ideas inspired by Product Hunt's top launches</p>
     </header>
 
-    <div class="mb-8">
-      <button
-        id="fetchBtn"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-      >
-        <span id="fetchBtnText">Fetch Ideas</span>
-        <span id="fetchBtnSpinner" class="hidden ml-2">⏳</span>
-      </button>
-      <div id="fetchStatus" class="mt-2 text-sm"></div>
+    <div class="mb-10 text-center">
+      <div class="flex flex-wrap gap-3 justify-center items-center">
+        <button
+          id="fetchBtn"
+          class="btn-gradient text-white font-semibold py-3 px-8 rounded-xl shadow-md disabled:cursor-not-allowed inline-flex items-center gap-2"
+        >
+          <svg id="fetchBtnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span id="fetchBtnText">Fetch Today's Ideas</span>
+          <svg id="fetchBtnSpinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+        <button
+          id="fetchPastBtn"
+          class="bg-gray-100 text-gray-700 font-medium py-3 px-6 rounded-xl hover:bg-gray-200 transition-all duration-200 inline-flex items-center gap-2"
+          title="One-time: Fetch ideas from past 2 days to add more data"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>Fetch Past 2 Days</span>
+        </button>
+      </div>
+      <div id="fetchStatus" class="mt-3 text-sm font-medium"></div>
     </div>
 
-    <div id="ideasContainer" class="space-y-8">
+    <div id="ideasContainer" class="space-y-10">
       <!-- Ideas will be loaded here -->
     </div>
 
-    <div id="loadingMore" class="hidden text-center py-8">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      <p class="mt-2 text-gray-600">Loading more ideas...</p>
+    <div id="loadingMore" class="hidden text-center py-10">
+      <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-brand-200 border-t-brand-500"></div>
+      <p class="mt-3 text-gray-500 font-medium">Loading more ideas...</p>
     </div>
 
-    <div id="noMore" class="hidden text-center py-8 text-gray-500">
-      No more ideas to load
+    <div id="noMore" class="hidden text-center py-10">
+      <p class="text-gray-400 font-medium">You've reached the end</p>
     </div>
   </div>
 
@@ -60,15 +143,15 @@
       fetchStatus.className = 'mt-2 text-sm';
 
       try {
-        const response = await fetch('/api/fetch-ideas', {
+        const response = await fetch('/api/fetch-ideas?daysBack=0', {
           method: 'POST',
         });
 
         const data = await response.json();
 
         if (data.success) {
-          fetchStatus.textContent = `✅ Successfully fetched and generated ${data.count} ideas!`;
-          fetchStatus.className = 'mt-2 text-sm text-green-600';
+          fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 text-green-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Generated ${data.count} new ideas!</span>`;
+          fetchStatus.className = 'mt-3 text-sm font-medium';
           // Reload ideas after fetching
           currentPage = 1;
           hasMore = true;
@@ -76,15 +159,15 @@
           ideasContainer.innerHTML = '';
           await loadIdeas();
         } else {
-          fetchStatus.textContent = `❌ Error: ${data.error}`;
-          fetchStatus.className = 'mt-2 text-sm text-red-600';
+          fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 text-red-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>Error: ${data.error}</span>`;
+          fetchStatus.className = 'mt-3 text-sm font-medium';
         }
       } catch (error) {
-        fetchStatus.textContent = `❌ Error: ${error.message}`;
-        fetchStatus.className = 'mt-2 text-sm text-red-600';
+        fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 text-red-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>Error: ${error.message}</span>`;
+        fetchStatus.className = 'mt-3 text-sm font-medium';
       } finally {
         fetchBtn.disabled = false;
-        fetchBtnText.textContent = 'Fetch Ideas';
+        fetchBtnText.textContent = "Fetch Today's Ideas";
         fetchBtnSpinner.classList.add('hidden');
       }
     }
@@ -135,15 +218,32 @@
         const dateSection = document.createElement('div');
         dateSection.className = 'mb-8';
 
-        const dateHeader = document.createElement('h2');
-        dateHeader.className = 'text-2xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-300';
+        const dateHeader = document.createElement('div');
+        dateHeader.className = 'text-xl font-bold text-gray-700 mb-6 pb-3 border-b-2 border-brand-200 flex items-center justify-between';
         const dateObj = new Date(date);
-        dateHeader.textContent = dateObj.toLocaleDateString('en-US', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        });
+        dateHeader.innerHTML = `
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            ${dateObj.toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </div>
+          <button 
+            onclick="clearDate('${date}')" 
+            class="text-sm text-red-600 hover:text-red-700 font-medium px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-1.5"
+            title="Clear all ideas from this date"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            Clear
+          </button>
+        `;
         dateSection.appendChild(dateHeader);
 
         const ideasGrid = document.createElement('div');
@@ -151,35 +251,52 @@
 
         for (const idea of allIdeasByDate[date]) {
           const ideaCard = document.createElement('div');
-          ideaCard.className = 'bg-white rounded-lg p-6';
+          ideaCard.className = 'bg-white rounded-2xl p-6 shadow-sm border border-gray-100 card-hover';
 
           ideaCard.innerHTML = `
-            <div class="mb-3 flex gap-3">
+            <div class="mb-4 flex gap-4">
               ${idea.ph_image ? `
-                <img src="${escapeHtml(idea.ph_image)}" alt="${escapeHtml(idea.ph_name)}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
-              ` : ''}
-              <div class="flex-1">
-                <a href="${idea.ph_url}" target="_blank" rel="noopener noreferrer" class="text-lg font-semibold text-blue-600 hover:text-blue-800">
+                <img src="${escapeHtml(idea.ph_image)}" alt="${escapeHtml(idea.ph_name)}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0 shadow-sm" />
+              ` : `
+                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-7 h-7 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                  </svg>
+                </div>
+              `}
+              <div class="flex-1 min-w-0">
+                <a href="${idea.ph_url}" target="_blank" rel="noopener noreferrer" class="text-base font-semibold text-gray-900 hover:text-brand-600 transition-colors block truncate">
                   ${escapeHtml(idea.ph_name)}
                 </a>
-                <p class="text-sm text-gray-500 mt-1">${escapeHtml(idea.ph_tagline || '')}</p>
-                <p class="text-xs text-gray-400 mt-1">${idea.ph_upvotes} upvotes</p>
+                <p class="text-sm text-gray-500 mt-1 line-clamp-2">${escapeHtml(idea.ph_tagline || '')}</p>
+                <div class="flex items-center gap-1 mt-2">
+                  <svg class="w-4 h-4 text-brand-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path>
+                  </svg>
+                  <span class="text-xs font-medium text-gray-500">${idea.ph_upvotes.toLocaleString()}</span>
+                </div>
               </div>
             </div>
-            <div class="mb-3">
-              <h3 class="text-sm font-semibold text-gray-700 mb-2">Mini Ideas:</h3>
+            <div class="pt-4 border-t border-gray-100">
+              <h3 class="text-xs font-semibold text-brand-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+                Build Ideas
+              </h3>
               ${(() => {
                 try {
-                  const miniIdeas = typeof idea.mini_idea === 'string' && idea.mini_idea.startsWith('[') 
-                    ? JSON.parse(idea.mini_idea) 
+                  const miniIdeas = typeof idea.mini_idea === 'string' && idea.mini_idea.startsWith('[')
+                    ? JSON.parse(idea.mini_idea)
                     : [idea.mini_idea];
                   return miniIdeas.map((miniIdea, idx) => `
-                    <div class="mb-2 ${idx > 0 ? 'mt-2' : ''}">
-                      <p class="text-sm text-gray-600">${escapeHtml(miniIdea)}</p>
+                    <div class="flex gap-2 ${idx > 0 ? 'mt-3' : ''}">
+                      <span class="text-brand-400 mt-0.5">•</span>
+                      <p class="text-sm text-gray-600 leading-relaxed">${escapeHtml(miniIdea)}</p>
                     </div>
                   `).join('');
                 } catch {
-                  return `<p class="text-sm text-gray-600">${escapeHtml(idea.mini_idea || '')}</p>`;
+                  return `<p class="text-sm text-gray-600 leading-relaxed">${escapeHtml(idea.mini_idea || '')}</p>`;
                 }
               })()}
             </div>
@@ -212,8 +329,69 @@
     document.body.appendChild(sentinel);
     observer.observe(sentinel);
 
+    async function fetchPastDays() {
+      const fetchPastBtn = document.getElementById('fetchPastBtn');
+      fetchPastBtn.disabled = true;
+      fetchPastBtn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Fetching...</span>';
+
+      try {
+        const response = await fetch('/api/fetch-ideas?daysBack=2', {
+          method: 'POST',
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 text-green-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Generated ${data.count} new ideas from past 2 days!</span>`;
+          fetchStatus.className = 'mt-3 text-sm font-medium';
+          currentPage = 1;
+          hasMore = true;
+          allIdeasByDate = {};
+          ideasContainer.innerHTML = '';
+          await loadIdeas();
+        } else {
+          fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 text-red-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>Error: ${data.error}</span>`;
+          fetchStatus.className = 'mt-3 text-sm font-medium';
+        }
+      } catch (error) {
+        fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 text-red-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>Error: ${error.message}</span>`;
+        fetchStatus.className = 'mt-3 text-sm font-medium';
+      } finally {
+        fetchPastBtn.disabled = false;
+        fetchPastBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Fetch Past 2 Days</span>';
+      }
+    }
+
+    async function clearDate(date) {
+      if (!confirm(`Are you sure you want to delete all ideas from ${new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/ideas/${date}`, {
+          method: 'DELETE',
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Reload ideas
+          currentPage = 1;
+          hasMore = true;
+          allIdeasByDate = {};
+          ideasContainer.innerHTML = '';
+          await loadIdeas();
+        } else {
+          alert(`Error: ${data.error}`);
+        }
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+      }
+    }
+
     // Event listeners
     fetchBtn.addEventListener('click', fetchIdeas);
+    document.getElementById('fetchPastBtn').addEventListener('click', fetchPastDays);
 
     // Load initial ideas
     loadIdeas();
