@@ -15,20 +15,22 @@ export const onRequestGet = async (context: PagesFunctionContext) => {
       return errorResponse('Image storage not configured', request, 500);
     }
 
-    // List images in the heroes/ folder
-    const list = await env.IMAGES_BUCKET.list({ prefix: 'heroes/' });
+    // List images in the recipes/ folder (used as hero backgrounds)
+    const list = await env.IMAGES_BUCKET.list({ prefix: 'recipes/' });
 
     // Generate public URLs for each image
     const url = new URL(request.url);
     const baseUrl = `${url.protocol}//${url.host}`;
 
-    const images = list.objects.map((obj) => ({
-      key: obj.key,
-      url: `${baseUrl}/api/image?path=${encodeURIComponent(obj.key)}`,
-      name: obj.key.replace('heroes/', '').replace(/\.[^.]+$/, ''), // Remove prefix and extension
-      size: obj.size,
-      uploaded: obj.uploaded,
-    }));
+    const images = list.objects
+      .filter((obj) => obj.size > 0) // Filter out directory entries
+      .map((obj) => ({
+        key: obj.key,
+        url: `${baseUrl}/api/image?path=${encodeURIComponent(obj.key)}`,
+        name: obj.key.replace('recipes/', '').replace(/\.[^.]+$/, ''), // Remove prefix and extension
+        size: obj.size,
+        uploaded: obj.uploaded,
+      }));
 
     return successResponse({ images }, request);
   } catch (error) {
