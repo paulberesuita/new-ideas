@@ -62,6 +62,12 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
     .line-clamp-none {
       display: block;
       -webkit-line-clamp: unset;
@@ -88,10 +94,80 @@
       background-color: #F97316;
       color: white;
     }
+    /* Masonry grid - JavaScript positioned */
+    .masonry-grid {
+      position: relative;
+      width: 100%;
+    }
+    .masonry-item {
+      position: absolute;
+      width: 100%;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    @media (min-width: 640px) {
+      .masonry-item {
+        width: calc(50% - 0.5rem);
+      }
+    }
+    @media (min-width: 1024px) {
+      .masonry-item {
+        width: calc(33.333% - 0.667rem);
+      }
+    }
+    /* Compact card styles */
+    .compact-card {
+      background: white;
+      border-radius: 0;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+    }
+    .compact-card:hover {
+      background: #FAFAF9;
+    }
+    /* Colored accent bar */
+    .compact-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+    }
+    .accent-coral::before { background: #F97316; }
+    .accent-blue::before { background: #3B82F6; }
+    .accent-green::before { background: #10B981; }
+    .accent-purple::before { background: #8B5CF6; }
+    .accent-pink::before { background: #EC4899; }
+    .accent-yellow::before { background: #F59E0B; }
+    .accent-teal::before { background: #14B8A6; }
+    .accent-red::before { background: #EF4444; }
+    /* Expandable description - height animation */
+    .compact-card .description-truncated {
+      display: block;
+    }
+    .compact-card .description-full {
+      display: none;
+    }
+    .compact-card.expanded .description-truncated {
+      display: none;
+    }
+    .compact-card.expanded .description-full {
+      display: block;
+    }
   </style>
 </head>
-<body class="bg-surface-50 min-h-screen">
-  <div class="container mx-auto px-4 py-12 max-w-6xl">
+<body class="bg-[#E8E6E3] min-h-screen">
+  <div class="container mx-auto px-4 py-12 max-w-6xl relative">
+    <!-- Top right Recipes button -->
+    <a href="/recipes.html" class="absolute top-4 right-4 inline-flex items-center gap-1.5 text-sm font-medium text-[#78716C] hover:text-brand-600 px-3 py-1.5 rounded-full bg-white border border-[#E7E5E4] hover:border-brand-300 transition-all">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+      </svg>
+      Recipes
+    </a>
+
     <header class="mb-10 text-center">
       <div class="inline-flex items-center gap-3 mb-4">
         <div class="w-12 h-12 rounded-xl bg-brand-500 flex items-center justify-center shadow-lg">
@@ -101,52 +177,110 @@
         </div>
         <h1 class="text-4xl font-extrabold text-[#1C1917]">Spark</h1>
       </div>
-      <p class="text-lg max-w-xl mx-auto text-[#78716C] italic mb-8">What will you build today?</p>
+      <p class="text-lg max-w-xl mx-auto text-[#78716C] italic">What will you build today?</p>
     </header>
 
-    <div class="mb-10 text-center">
-      <div class="flex flex-wrap gap-3 justify-center items-center">
+    <!-- Smart Input -->
+    <div class="mb-10 max-w-2xl mx-auto">
+      <div
+        id="smartInputContainer"
+        class="bg-white rounded-lg shadow-sm border border-[#E7E5E4] focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100 transition-all"
+      >
+        <div class="flex items-start gap-3 p-4">
+          <div id="inputIcon" class="mt-1 text-[#A8A29E]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <textarea
+              id="smartInput"
+              placeholder="Paste a URL, describe an idea, or drop an image..."
+              class="w-full resize-none border-0 bg-transparent text-[#1C1917] placeholder-[#A8A29E] focus:outline-none focus:ring-0 text-base leading-relaxed"
+              rows="1"
+            ></textarea>
+            <div id="imagePreview" class="hidden mt-3">
+              <div class="relative inline-block">
+                <img id="previewImg" class="max-h-32 rounded-lg" />
+                <button
+                  id="removeImage"
+                  class="absolute -top-2 -right-2 w-6 h-6 bg-[#1C1917] text-white rounded-full flex items-center justify-center hover:bg-red-500 transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3 border-t border-[#E7E5E4] bg-[#FAFAF9]">
+          <div class="flex items-center gap-4 text-xs text-[#A8A29E]">
+            <span id="inputTypeHint">Type or paste anything</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="cursor-pointer text-[#78716C] hover:text-brand-500 transition-colors p-2 rounded-lg hover:bg-brand-50">
+              <input type="file" id="imageUpload" accept="image/*" class="hidden" />
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </label>
+            <button
+              id="generateBtn"
+              class="bg-brand-500 hover:bg-brand-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed inline-flex items-center gap-2 text-sm"
+            >
+              <span id="generateBtnText">Generate</span>
+              <svg id="generateSpinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="fetchStatus" class="mt-3 text-sm font-medium text-center"></div>
+
+      <!-- Quick actions -->
+      <div class="flex items-center justify-center gap-3 mt-4">
         <button
-          id="fetchBtn"
-          class="bg-brand-500 hover:bg-brand-600 text-white font-semibold py-3 px-8 rounded-xl shadow-md transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed inline-flex items-center gap-2"
+          id="phTodayBtn"
+          class="text-xs text-[#78716C] hover:text-brand-600 px-3 py-1.5 rounded-full bg-white border border-[#E7E5E4] hover:border-brand-300 transition-all"
         >
-          <svg id="fetchBtnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-          </svg>
-          <span id="fetchBtnText">Get today's ideas</span>
-          <svg id="fetchBtnSpinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
+          Product Hunt today
         </button>
-        <div class="flex items-center gap-2">
+        <button
+          id="phDateBtn"
+          class="text-xs text-[#78716C] hover:text-brand-600 px-3 py-1.5 rounded-full bg-white border border-[#E7E5E4] hover:border-brand-300 transition-all inline-flex items-center gap-1.5"
+        >
           <input
             type="date"
             id="datePicker"
-            class="bg-[#E7E5E4] text-[#1C1917] font-medium py-3 px-4 rounded-xl border-0 focus:ring-2 focus:ring-brand-500 focus:outline-none"
-            style="background-color: #E7E5E4;"
+            class="bg-transparent border-0 text-xs p-0 w-24 focus:outline-none focus:ring-0 cursor-pointer"
           />
+        </button>
+      </div>
+
+      <!-- Recipe Selector -->
+      <div class="flex items-center justify-center mt-4">
+        <div class="relative">
           <button
-            id="fetchDateBtn"
-            class="bg-white text-[#57534E] font-medium py-3 px-6 rounded-xl border border-[#D6D3D1] hover:bg-surface-50 hover:border-[#A8A29E] transition-all duration-200 inline-flex items-center gap-2 disabled:bg-surface-100 disabled:cursor-not-allowed"
+            id="recipeSelector"
+            class="inline-flex items-center gap-2 text-sm text-[#57534E] hover:text-brand-600 px-4 py-2 rounded-lg bg-white border border-[#E7E5E4] hover:border-brand-300 transition-all"
           >
-            <svg id="fetchDateIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            <svg class="w-4 h-4 text-[#A8A29E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
             </svg>
-            <span id="fetchDateText">Get ideas</span>
-            <svg id="fetchDateSpinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <span id="selectedRecipeName">Default</span>
+            <svg class="w-4 h-4 text-[#A8A29E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
             </svg>
           </button>
-        </div>
-      </div>
-      <div id="fetchStatus" class="mt-3 text-sm font-medium"></div>
-
-      <!-- Date Pills -->
-      <div id="datePillsContainer" class="mt-6">
-        <div id="datePills" class="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          <!-- Date pills will be dynamically inserted here -->
+          <div
+            id="recipeDropdown"
+            class="hidden absolute left-1/2 -translate-x-1/2 mt-2 w-64 bg-white rounded-xl shadow-lg border border-[#E7E5E4] py-2 z-50"
+          >
+            <!-- Recipes will be loaded here -->
+          </div>
         </div>
       </div>
     </div>
@@ -167,288 +301,405 @@
 
   <script>
     let availableDates = []; // All dates from database
-    let currentIdeas = []; // Ideas for currently selected date
-    let selectedDate = null; // Currently selected date (null = most recent)
+    let allIdeas = []; // All ideas from all dates
     let isLoading = false;
+    let currentImage = null; // Base64 image data
+    let recipes = []; // All available recipes
+    let selectedRecipe = null; // Currently selected recipe
 
-    const fetchBtn = document.getElementById('fetchBtn');
-    const fetchBtnText = document.getElementById('fetchBtnText');
-    const fetchBtnSpinner = document.getElementById('fetchBtnSpinner');
+    // Smart input elements
+    const smartInput = document.getElementById('smartInput');
+    const inputTypeHint = document.getElementById('inputTypeHint');
+    const inputIcon = document.getElementById('inputIcon');
+    const generateBtn = document.getElementById('generateBtn');
+    const generateBtnText = document.getElementById('generateBtnText');
+    const generateSpinner = document.getElementById('generateSpinner');
     const fetchStatus = document.getElementById('fetchStatus');
     const ideasContainer = document.getElementById('ideasContainer');
     const loadingMore = document.getElementById('loadingMore');
     const noMore = document.getElementById('noMore');
+    const imageUpload = document.getElementById('imageUpload');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    const removeImageBtn = document.getElementById('removeImage');
+    const phTodayBtn = document.getElementById('phTodayBtn');
+    const datePicker = document.getElementById('datePicker');
+    const recipeSelector = document.getElementById('recipeSelector');
+    const recipeDropdown = document.getElementById('recipeDropdown');
+    const selectedRecipeName = document.getElementById('selectedRecipeName');
 
-    async function fetchIdeas() {
-      // Check if we already have ideas for today
-      const today = new Date().toISOString().split('T')[0];
-      if (availableDates.includes(today)) {
-        const formattedDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>Ideas for ${formattedDate} already exist</span>`;
-        fetchStatus.className = 'mt-3 text-sm font-medium';
-        // Select today's date to show the existing ideas
-        await selectDate(today);
+    // Detect input type
+    function detectInputType(text) {
+      if (!text.trim() && currentImage) return 'image';
+      if (!text.trim()) return 'empty';
+
+      // URL detection
+      const urlPattern = /^(https?:\/\/|www\.)/i;
+      if (urlPattern.test(text.trim())) return 'url';
+
+      // Product Hunt URL
+      if (text.includes('producthunt.com')) return 'producthunt';
+
+      return 'prompt';
+    }
+
+    // Update UI based on input type
+    function updateInputHint() {
+      const type = detectInputType(smartInput.value);
+      const icons = {
+        empty: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`,
+        url: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>`,
+        prompt: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>`,
+        image: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 4 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`,
+        producthunt: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M13.604 8.4h-3.405V12h3.405c.995 0 1.801-.806 1.801-1.8 0-.995-.806-1.8-1.801-1.8zM12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm1.604 14.4h-3.405V18H7.801V6h5.804c2.319 0 4.2 1.881 4.2 4.2 0 2.319-1.881 4.2-4.201 4.2z"/></svg>`,
+      };
+      const hints = {
+        empty: 'Type or paste anything',
+        url: 'URL detected - will analyze the page',
+        prompt: 'Will generate ideas from your description',
+        image: 'Image attached - will analyze for ideas',
+        producthunt: 'Product Hunt link detected',
+      };
+
+      inputIcon.innerHTML = icons[type] || icons.empty;
+      inputTypeHint.textContent = hints[type] || hints.empty;
+
+      if (type === 'url' || type === 'producthunt') {
+        inputIcon.classList.remove('text-[#A8A29E]');
+        inputIcon.classList.add('text-brand-500');
+      } else {
+        inputIcon.classList.remove('text-brand-500');
+        inputIcon.classList.add('text-[#A8A29E]');
+      }
+
+      // Auto-select recipe based on input type
+      if (type !== 'empty') {
+        autoSelectRecipeForInputType(type);
+      }
+    }
+
+    // Auto-resize textarea
+    function autoResize() {
+      smartInput.style.height = 'auto';
+      smartInput.style.height = Math.min(smartInput.scrollHeight, 150) + 'px';
+    }
+
+    // Handle image upload
+    function handleImageUpload(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        currentImage = e.target.result;
+        previewImg.src = currentImage;
+        imagePreview.classList.remove('hidden');
+        updateInputHint();
+        // Auto-select image recipe if available
+        autoSelectRecipeForInputType('image');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Remove image
+    function removeImage() {
+      currentImage = null;
+      imagePreview.classList.add('hidden');
+      previewImg.src = '';
+      updateInputHint();
+    }
+
+    // Generate ideas from smart input
+    async function generateFromInput() {
+      const text = smartInput.value.trim();
+      const type = detectInputType(text);
+
+      if (type === 'empty') {
+        fetchStatus.innerHTML = `<span class="text-[#DC2626]">Please enter a URL, prompt, or upload an image</span>`;
         return;
       }
 
-      fetchBtn.disabled = true;
-      fetchBtnText.textContent = 'Fetching...';
-      fetchBtnSpinner.classList.remove('hidden');
+      generateBtn.disabled = true;
+      generateBtnText.textContent = 'Generating...';
+      generateSpinner.classList.remove('hidden');
       fetchStatus.textContent = '';
-      fetchStatus.className = 'mt-2 text-sm';
 
       try {
-        const response = await fetch('/api/fetch-ideas?daysBack=0', {
+        let response;
+
+        const recipeId = selectedRecipe?.id;
+
+        if (type === 'url' || type === 'producthunt') {
+          response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'url', url: text, recipe_id: recipeId }),
+          });
+        } else if (type === 'image' || currentImage) {
+          response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'image', image: currentImage, prompt: text, recipe_id: recipeId }),
+          });
+        } else {
+          response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'prompt', prompt: text, recipe_id: recipeId }),
+          });
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          const count = data.data?.count || data.count || 0;
+          fetchStatus.innerHTML = `<span class="text-[#16A34A]">${count} new ideas generated!</span>`;
+          smartInput.value = '';
+          removeImage();
+          autoResize();
+          updateInputHint();
+          await loadAllIdeas();
+        } else {
+          const error = data.data?.error || data.error || 'Unknown error';
+          fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error}</span>`;
+        }
+      } catch (error) {
+        fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error.message}</span>`;
+      } finally {
+        generateBtn.disabled = false;
+        generateBtnText.textContent = 'Generate';
+        generateSpinner.classList.add('hidden');
+      }
+    }
+
+    // Fetch from Product Hunt for a specific date
+    async function fetchProductHunt(date) {
+      generateBtn.disabled = true;
+      generateBtnText.textContent = 'Fetching...';
+      generateSpinner.classList.remove('hidden');
+      fetchStatus.textContent = '';
+
+      try {
+        const recipeId = selectedRecipe?.id;
+        const url = recipeId ? `/api/fetch-ideas?date=${date}&recipe_id=${recipeId}` : `/api/fetch-ideas?date=${date}`;
+        const response = await fetch(url, {
           method: 'POST',
         });
 
         const data = await response.json();
 
         if (data.success) {
-          const today = new Date();
-          const formattedDate = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-          // Handle both old format { count: ... } and new format { data: { count: ... } }
+          const formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
           const count = data.data?.count || data.count || 0;
-          fetchStatus.innerHTML = `<span class="text-[#16A34A] italic">${count} new ideas for ${formattedDate}! ✨</span>`;
-          fetchStatus.className = 'mt-3 text-sm font-medium';
-          // Reload dates and select the most recent
-          await loadDates();
+          fetchStatus.innerHTML = `<span class="text-[#16A34A]">${count} ideas from Product Hunt (${formattedDate})!</span>`;
+          await loadAllIdeas();
         } else {
           const error = data.data?.error || data.error || 'Unknown error';
           fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error}</span>`;
-          fetchStatus.className = 'mt-3 text-sm font-medium';
         }
       } catch (error) {
         fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error.message}</span>`;
-        fetchStatus.className = 'mt-3 text-sm font-medium';
       } finally {
-        fetchBtn.disabled = false;
-        fetchBtnText.textContent = "Get today's ideas";
-        fetchBtnSpinner.classList.add('hidden');
+        generateBtn.disabled = false;
+        generateBtnText.textContent = 'Generate';
+        generateSpinner.classList.add('hidden');
       }
     }
 
-    // Load all available dates from database
-    async function loadDates() {
-      try {
-        const response = await fetch('/api/dates');
-        const data = await response.json();
-        console.log('Dates API response:', data); // Debug
-
-        // Handle both old format { dates: [...] } and new format { success: true, data: { dates: [...] } }
-        const dates = data.data?.dates || data.dates || [];
-        
-        if (dates && dates.length > 0) {
-          availableDates = dates;
-          console.log('Setting availableDates:', availableDates); // Debug
-          updateDatePills();
-
-          // Auto-select most recent date if none selected
-          if (availableDates.length > 0) {
-            const dateToSelect = selectedDate && availableDates.includes(selectedDate)
-              ? selectedDate
-              : availableDates[0];
-            await selectDate(dateToSelect);
-          } else {
-            ideasContainer.innerHTML = '<p class="text-center text-gray-500">No ideas yet. Click "Get today\'s ideas" to start!</p>';
-          }
-        }
-      } catch (error) {
-        console.error('Error loading dates:', error);
-      }
-    }
-
-    // Load ideas for a specific date
-    async function loadIdeasForDate(date) {
+    // Load all ideas from all dates
+    async function loadAllIdeas() {
       if (isLoading) return;
       isLoading = true;
       loadingMore.classList.remove('hidden');
 
       try {
-        const response = await fetch(`/api/ideas?date=${date}`);
-        const data = await response.json();
+        // First get all available dates
+        const datesResponse = await fetch('/api/dates');
+        const datesData = await datesResponse.json();
+        availableDates = datesData.data?.dates || datesData.dates || [];
 
-        // Handle both old format { ideas: {...} } and new format { success: true, data: { ideas: {...} } }
+        // Load ideas for all dates
+        const response = await fetch('/api/ideas');
+        const data = await response.json();
         const ideasData = data.data || data;
-        
-        if (ideasData.ideas && ideasData.ideas[date]) {
-          currentIdeas = ideasData.ideas[date];
-          renderIdeas(date);
-        } else {
-          // No ideas for this date
-          currentIdeas = [];
-          renderIdeas(date);
+
+        // Flatten all ideas into a single array
+        allIdeas = [];
+        if (ideasData.ideas) {
+          for (const date of Object.keys(ideasData.ideas).sort().reverse()) {
+            for (const idea of ideasData.ideas[date]) {
+              allIdeas.push({ ...idea, date });
+            }
+          }
         }
+
+        renderAllIdeas();
       } catch (error) {
         console.error('Error loading ideas:', error);
+        ideasContainer.innerHTML = '<p class="text-center text-gray-500">Error loading ideas.</p>';
       } finally {
         isLoading = false;
         loadingMore.classList.add('hidden');
       }
     }
 
-    // Select a date and load its ideas
-    async function selectDate(date) {
-      selectedDate = date;
-      updateDatePills();
-      await loadIdeasForDate(date);
+    // Extract a short title (4-6 words) from a build idea description
+    function extractTitle(buildIdea) {
+      // Try to extract the product name if it follows pattern "ProductName - description"
+      const dashMatch = buildIdea.match(/^([^-]+)\s*-/);
+      if (dashMatch && dashMatch[1].split(' ').length <= 6) {
+        return dashMatch[1].trim();
+      }
+
+      // Otherwise take first 4-6 words
+      const words = buildIdea.split(' ');
+      const titleWords = words.slice(0, Math.min(6, words.length));
+      let title = titleWords.join(' ');
+
+      // Clean up - remove trailing punctuation and add ellipsis if truncated
+      title = title.replace(/[,.:;]$/, '');
+      if (words.length > 6) {
+        title += '...';
+      }
+
+      return title;
     }
 
-    function renderIdeas(date) {
+    function renderAllIdeas() {
       ideasContainer.innerHTML = '';
 
-      if (!date || currentIdeas.length === 0) {
-        ideasContainer.innerHTML = '<p class="text-center text-gray-500">No ideas for this date.</p>';
+      if (allIdeas.length === 0) {
+        ideasContainer.innerHTML = '<p class="text-center text-gray-500">No ideas yet. Click "Get today\'s ideas" to start!</p>';
         return;
       }
 
-      const dateSection = document.createElement('div');
-      dateSection.className = 'mb-8';
+      // Flatten: create one card per build idea (not per product)
+      const buildIdeaCards = [];
 
-      const dateHeader = document.createElement('div');
-      dateHeader.className = 'text-xl font-bold text-[#1C1917] mb-6 pb-3 border-b-2 border-[#F59E0B] flex items-center justify-between';
-      // Parse date as local time to avoid timezone issues
-      const dateObj = new Date(date + 'T00:00:00');
-      dateHeader.innerHTML = `
-        <div class="flex items-center gap-3">
-          <svg class="w-5 h-5 text-[#F59E0B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-          </svg>
-          ${dateObj.toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </div>
-        <button
-          onclick="clearDate('${date}')"
-          class="text-sm text-[#A8A29E] hover:text-[#DC2626] font-medium px-3 py-1.5 rounded-lg hover:bg-red-50 transition-all duration-200 flex items-center gap-1.5"
-          title="Clear all ideas from this date"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-          </svg>
-          Clear
-        </button>
-      `;
-      dateSection.appendChild(dateHeader);
-
-      const ideasGrid = document.createElement('div');
-      ideasGrid.className = 'grid gap-0';
-
-      for (let i = 0; i < currentIdeas.length; i++) {
-          const idea = currentIdeas[i];
-
-          // Add divider before each card except the first
-          if (i > 0) {
-            const divider = document.createElement('div');
-            divider.className = 'border-t border-[#D6D3D1] my-6';
-            ideasGrid.appendChild(divider);
+      for (const product of allIdeas) {
+        // Parse mini ideas
+        let miniIdeas = [];
+        try {
+          if (product.mini_ideas && Array.isArray(product.mini_ideas)) {
+            miniIdeas = product.mini_ideas;
+          } else if (product.mini_idea) {
+            if (typeof product.mini_idea === 'string' && product.mini_idea.startsWith('[')) {
+              miniIdeas = JSON.parse(product.mini_idea);
+            } else {
+              miniIdeas = [product.mini_idea];
+            }
           }
+        } catch (error) {
+          console.error('Error parsing mini ideas:', error, product);
+        }
 
-          const ideaCard = document.createElement('div');
-          ideaCard.className = 'bg-white rounded-2xl p-6 shadow-sm border border-[#E7E5E4] hover:-translate-y-1 transition-all duration-200';
+        // Parse title summaries
+        let titleSummaries = [];
+        try {
+          if (product.title_summaries && Array.isArray(product.title_summaries)) {
+            titleSummaries = product.title_summaries;
+          } else if (product.title_summaries && typeof product.title_summaries === 'string' && product.title_summaries.startsWith('[')) {
+            titleSummaries = JSON.parse(product.title_summaries);
+          }
+        } catch (error) {
+          console.error('Error parsing title summaries:', error, product);
+        }
 
-          ideaCard.innerHTML = `
-            <div class="flex gap-3 items-start mb-3">
-              ${idea.ph_image ? `
-                <img src="${escapeHtml(idea.ph_image)}" alt="${escapeHtml(idea.ph_name)}" class="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-[#E7E5E4]" />
-              ` : `
-                <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0 border border-[#E7E5E4]">
-                  <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                  </svg>
-                </div>
-              `}
-              <div class="flex-1 min-w-0">
-                <a href="${idea.ph_url}" target="_blank" rel="noopener noreferrer" class="text-base font-semibold text-[#1C1917] hover:text-brand-600 transition-all duration-200 block truncate">
-                  ${escapeHtml(idea.ph_name)}
-                </a>
-                <div class="flex items-center gap-1 mt-1">
-                  <svg class="w-3.5 h-3.5 text-[#A8A29E]" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path>
-                  </svg>
-                  <span class="text-xs font-medium text-[#A8A29E]">${idea.ph_upvotes.toLocaleString()} upvotes</span>
-                </div>
-              </div>
-            </div>
-            <div class="mb-4">
-              <p class="text-sm text-[#78716C] leading-relaxed line-clamp-3 tagline-text">${escapeHtml(idea.ph_tagline || '')}</p>
-              <button class="read-more-btn hidden text-xs font-medium text-brand-600 hover:text-brand-700 mt-1 transition-all duration-200" onclick="toggleReadMore(this)">Read more</button>
-            </div>
-            <div class="pt-4 border-t border-[#E7E5E4]">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="text-xs font-medium text-[#78716C] uppercase tracking-wider flex items-center gap-2">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                  </svg>
-                  Build Ideas
-                </h3>
-                <button
-                  onclick="refreshIdeas(${idea.id || 'null'}, this)"
-                  class="text-xs font-medium text-[#78716C] hover:text-brand-600 transition-all duration-200 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-brand-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Generate fresh ideas for this product"
-                >
-                  <svg id="refresh-icon-${idea.id || ''}" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                  </svg>
-                  <span id="refresh-text-${idea.id || ''}">Refresh</span>
-                  <svg id="refresh-spinner-${idea.id || ''}" class="hidden w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                </button>
-              </div>
-              <div class="space-y-3">
-              ${(() => {
-                try {
-                  // Handle both old format (mini_idea as JSON string) and new format (mini_ideas as array)
-                  let miniIdeas = [];
-                  if (idea.mini_ideas && Array.isArray(idea.mini_ideas)) {
-                    // New format: already an array
-                    miniIdeas = idea.mini_ideas;
-                  } else if (idea.mini_idea) {
-                    // Old format: JSON string that needs parsing
-                    if (typeof idea.mini_idea === 'string' && idea.mini_idea.startsWith('[')) {
-                      miniIdeas = JSON.parse(idea.mini_idea);
-                    } else {
-                      miniIdeas = [idea.mini_idea];
-                    }
-                  }
-                  
-                  if (miniIdeas.length === 0) {
-                    return '<p class="text-sm text-[#57534E] leading-relaxed italic">No build ideas available</p>';
-                  }
-                  
-                  return miniIdeas.map((miniIdea, idx) => `
-                    <div class="flex gap-2.5 items-start ${idx > 0 ? 'pt-3 border-t border-[#E7E5E4]' : ''}">
-                      <span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B] mt-2 flex-shrink-0"></span>
-                      <p class="text-sm text-[#57534E] leading-relaxed">${escapeHtml(miniIdea)}</p>
-                    </div>
-                  `).join('');
-                } catch (error) {
-                  console.error('Error parsing mini ideas:', error, idea);
-                  return '<p class="text-sm text-[#57534E] leading-relaxed italic">Error loading build ideas</p>';
-                }
-              })()}
-              </div>
-            </div>
-          `;
-
-        ideasGrid.appendChild(ideaCard);
+        // Create a card for each build idea
+        for (let idx = 0; idx < miniIdeas.length; idx++) {
+          // Get title from database title_summaries if available
+          const dbTitle = titleSummaries[idx];
+          buildIdeaCards.push({
+            buildIdea: miniIdeas[idx],
+            buildIdeaIndex: idx,
+            titleSummary: (dbTitle !== undefined && dbTitle !== null && dbTitle !== '') ? dbTitle : null, // Use database title if it exists and is not empty
+            product: product
+          });
+        }
       }
 
-      dateSection.appendChild(ideasGrid);
-      ideasContainer.appendChild(dateSection);
+      if (buildIdeaCards.length === 0) {
+        ideasContainer.innerHTML = '<p class="text-center text-gray-500">No build ideas yet. Click "Get today\'s ideas" to start!</p>';
+        return;
+      }
 
-      // Check for text overflow and show "Read more" buttons
+      // Masonry grid container
+      const ideasGrid = document.createElement('div');
+      ideasGrid.className = 'masonry-grid';
+
+      // Accent color classes for variety
+      const accentColors = ['accent-coral', 'accent-blue', 'accent-green', 'accent-purple', 'accent-pink', 'accent-yellow', 'accent-teal', 'accent-red'];
+
+      for (let i = 0; i < buildIdeaCards.length; i++) {
+        const { buildIdea, buildIdeaIndex, titleSummary, product } = buildIdeaCards[i];
+        // Use title_summary from database if available
+        const title = (titleSummary !== null && titleSummary !== undefined) ? titleSummary : extractTitle(buildIdea);
+
+        // Truncate description with MORE variation (12-50 words for masonry effect)
+        const words = buildIdea.split(' ');
+        // Use a more varied pattern: some very short, some medium, some long
+        const variationPatterns = [12, 15, 20, 12, 35, 18, 50, 14, 25, 12, 40, 16, 30, 13, 45, 17];
+        const truncateLength = variationPatterns[i % variationPatterns.length];
+        const needsTruncation = words.length > truncateLength;
+        const truncatedText = needsTruncation
+          ? words.slice(0, truncateLength).join(' ') + '...'
+          : buildIdea;
+
+        // Assign accent color based on index
+        const accentClass = accentColors[i % accentColors.length];
+
+        // Masonry item wrapper
+        const masonryItem = document.createElement('div');
+        masonryItem.className = 'masonry-item';
+
+        const ideaCard = document.createElement('div');
+        ideaCard.className = `compact-card ${accentClass}`;
+        ideaCard.onclick = function(e) {
+          // Don't toggle if clicking on a link
+          if (e.target.tagName === 'A' || e.target.closest('a')) return;
+          this.classList.toggle('expanded');
+          // Re-layout masonry after card height changes
+          requestAnimationFrame(() => {
+            layoutMasonry();
+          });
+        };
+
+        ideaCard.innerHTML = `
+          <div class="p-5 pl-6">
+            <!-- Title -->
+            <h3 class="text-lg font-normal text-[#1C1917] leading-tight mb-2">${escapeHtml(title)}</h3>
+
+            <!-- Description -->
+            <p class="description-truncated text-sm text-[#78716C] leading-relaxed">${escapeHtml(truncatedText)}</p>
+            <p class="description-full text-sm text-[#78716C] leading-relaxed">${escapeHtml(buildIdea)}</p>
+
+            <!-- Footer: Inspired by + Date -->
+            <div class="mt-4 flex items-center justify-between">
+              <a href="${product.ph_url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-xs text-[#78716C] hover:text-brand-600 transition-colors" onclick="event.stopPropagation()">
+                ${product.ph_image ? `
+                  <img src="${escapeHtml(product.ph_image)}" alt="${escapeHtml(product.ph_name)}" class="w-6 h-6 rounded object-cover" />
+                ` : `
+                  <div class="w-6 h-6 rounded bg-brand-100 flex items-center justify-center">
+                    <svg class="w-3 h-3 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                  </div>
+                `}
+                <span>${escapeHtml(product.ph_name)}</span>
+              </a>
+              <span class="text-xs text-[#A8A29E]">${new Date(product.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+            </div>
+          </div>
+        `;
+
+        masonryItem.appendChild(ideaCard);
+        ideasGrid.appendChild(masonryItem);
+      }
+
+      ideasContainer.appendChild(ideasGrid);
+
+      // Layout masonry after DOM is ready
       requestAnimationFrame(() => {
-        document.querySelectorAll('.tagline-text').forEach(el => {
-          if (el.scrollHeight > el.clientHeight) {
-            el.nextElementSibling.classList.remove('hidden');
-          }
-        });
+        layoutMasonry();
       });
     }
 
@@ -465,6 +716,11 @@
         textEl.classList.add('line-clamp-none');
         btn.textContent = 'Show less';
       }
+
+      // Re-layout masonry after card height change
+      requestAnimationFrame(() => {
+        layoutMasonry();
+      });
     }
 
     function escapeHtml(text) {
@@ -472,6 +728,52 @@
       div.textContent = text;
       return div.innerHTML;
     }
+
+    // Masonry layout - positions items in columns, filling shortest column first
+    // This maintains left-to-right, top-to-bottom order (newest first)
+    function layoutMasonry() {
+      const grid = document.querySelector('.masonry-grid');
+      if (!grid) return;
+
+      const items = grid.querySelectorAll('.masonry-item');
+      if (items.length === 0) return;
+
+      const gap = 16; // 1rem gap
+      const gridWidth = grid.offsetWidth;
+
+      // Determine number of columns based on viewport
+      let numCols = 1;
+      if (window.innerWidth >= 1024) numCols = 3;
+      else if (window.innerWidth >= 640) numCols = 2;
+
+      const colWidth = (gridWidth - (numCols - 1) * gap) / numCols;
+      const colHeights = new Array(numCols).fill(0);
+
+      items.forEach((item, index) => {
+        // Find the shortest column
+        const shortestCol = colHeights.indexOf(Math.min(...colHeights));
+
+        // Position the item
+        const x = shortestCol * (colWidth + gap);
+        const y = colHeights[shortestCol];
+
+        item.style.transform = `translate(${x}px, ${y}px)`;
+        item.style.width = `${colWidth}px`;
+
+        // Update column height
+        colHeights[shortestCol] += item.offsetHeight + gap;
+      });
+
+      // Set grid container height
+      grid.style.height = `${Math.max(...colHeights)}px`;
+    }
+
+    // Debounced resize handler
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(layoutMasonry, 100);
+    });
 
     function updateDatePills() {
       console.log('updateDatePills called, availableDates:', availableDates); // Debug
@@ -496,80 +798,12 @@
         const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
         const pill = document.createElement('button');
-        pill.className = `date-pill flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${selectedDate === date ? 'active' : ''}`;
+        pill.className = `date-pill flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200`;
         pill.textContent = formattedDate;
-        pill.onclick = () => selectDate(date);
+        // Date pills are for display only - all ideas are shown together
 
         datePills.appendChild(pill);
         console.log('Added pill for date:', date, formattedDate); // Debug
-      }
-    }
-
-    async function fetchDate() {
-      const datePicker = document.getElementById('datePicker');
-      const fetchDateBtn = document.getElementById('fetchDateBtn');
-      const fetchDateText = document.getElementById('fetchDateText');
-      const fetchDateIcon = document.getElementById('fetchDateIcon');
-      const fetchDateSpinner = document.getElementById('fetchDateSpinner');
-
-      const pickedDate = datePicker.value;
-      if (!pickedDate) {
-        fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-50 text-yellow-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>Please select a date first</span>`;
-        fetchStatus.className = 'mt-3 text-sm font-medium';
-        return;
-      }
-
-      // Check if we already have ideas for the selected date
-      if (availableDates.includes(pickedDate)) {
-        const dateObj = new Date(pickedDate + 'T00:00:00');
-        const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        fetchStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>Ideas for ${formattedDate} already exist</span>`;
-        fetchStatus.className = 'mt-3 text-sm font-medium';
-        // Select the date to show the existing ideas
-        await selectDate(pickedDate);
-        return;
-      }
-
-      fetchDateBtn.disabled = true;
-      fetchDateText.textContent = 'Fetching...';
-      fetchDateIcon.classList.add('hidden');
-      fetchDateSpinner.classList.remove('hidden');
-      fetchStatus.textContent = '';
-      fetchStatus.className = 'mt-2 text-sm';
-
-      try {
-        const response = await fetch(`/api/fetch-ideas?date=${pickedDate}`, {
-          method: 'POST',
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          // Parse date as local time to avoid timezone issues
-          const dateObj = new Date(pickedDate + 'T00:00:00');
-          const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-          // Handle both old format { count: ... } and new format { data: { count: ... } }
-          const count = data.data?.count || data.count || 0;
-          fetchStatus.innerHTML = `<span class="text-[#16A34A] italic">${count} new ideas for ${formattedDate}! ✨</span>`;
-          fetchStatus.className = 'mt-3 text-sm font-medium';
-          // Reload dates and select the newly fetched date
-          selectedDate = pickedDate;
-          await loadDates();
-          // Explicitly load ideas for the fetched date to ensure they're displayed
-          await loadIdeasForDate(pickedDate);
-        } else {
-          const error = data.data?.error || data.error || 'Unknown error';
-          fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error}</span>`;
-          fetchStatus.className = 'mt-3 text-sm font-medium';
-        }
-      } catch (error) {
-        fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error.message}</span>`;
-        fetchStatus.className = 'mt-3 text-sm font-medium';
-      } finally {
-        fetchDateBtn.disabled = false;
-        fetchDateText.textContent = 'Get ideas';
-        fetchDateIcon.classList.remove('hidden');
-        fetchDateSpinner.classList.add('hidden');
       }
     }
 
@@ -599,13 +833,19 @@
         if (data.success || (data.data && data.data.mini_ideas)) {
           // Handle both old and new response formats
           const newMiniIdeas = data.data?.mini_ideas || data.mini_ideas || [];
+
+          // Handle both old and new response formats
+          const newTitleSummaries = data.data?.title_summaries || [];
           
-          // Update the idea in currentIdeas array
-          const ideaIndex = currentIdeas.findIndex(idea => idea.id === ideaId);
+          // Update the idea in allIdeas array
+          const ideaIndex = allIdeas.findIndex(idea => idea.id === ideaId);
           if (ideaIndex !== -1) {
-            currentIdeas[ideaIndex].mini_ideas = newMiniIdeas;
-            // Re-render ideas for the current date
-            renderIdeas(selectedDate);
+            allIdeas[ideaIndex].mini_ideas = newMiniIdeas;
+            if (newTitleSummaries.length > 0) {
+              allIdeas[ideaIndex].title_summaries = newTitleSummaries;
+            }
+            // Re-render all ideas
+            renderAllIdeas();
           }
         } else {
           const error = data.data?.error || data.error || 'Unknown error';
@@ -636,9 +876,8 @@
         const data = await response.json();
 
         if (data.success) {
-          // Reload dates (will auto-select first available)
-          selectedDate = null;
-          await loadDates();
+          // Reload all ideas after deletion
+          await loadAllIdeas();
         } else {
           const error = data.data?.error || data.error || 'Unknown error';
           alert(`Error: ${error}`);
@@ -648,18 +887,195 @@
       }
     }
 
-    // Event listeners
-    fetchBtn.addEventListener('click', fetchIdeas);
-    document.getElementById('fetchDateBtn').addEventListener('click', fetchDate);
+    // Load recipes for selector
+    async function loadRecipes() {
+      try {
+        const response = await fetch('/api/recipes');
+        const data = await response.json();
+        recipes = data.data || data || [];
+
+        // Set default recipe as selected if none selected
+        if (!selectedRecipe && recipes.length > 0) {
+          const defaultRecipe = recipes.find(r => r.is_default) || recipes[0];
+          selectRecipe(defaultRecipe);
+        }
+
+        renderRecipeDropdown();
+      } catch (error) {
+        console.error('Error loading recipes:', error);
+      }
+    }
+
+    // Render recipe dropdown
+    function renderRecipeDropdown() {
+      recipeDropdown.innerHTML = '';
+
+      for (const recipe of recipes) {
+        const item = document.createElement('button');
+        item.className = `w-full text-left px-4 py-2.5 text-sm hover:bg-[#F5F5F4] transition-colors ${
+          selectedRecipe?.id === recipe.id ? 'bg-brand-50 text-brand-700' : 'text-[#57534E]'
+        }`;
+        item.onclick = () => {
+          selectRecipe(recipe);
+          recipeDropdown.classList.add('hidden');
+        };
+
+        item.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="font-medium">${escapeHtml(recipe.name)}</span>
+              ${recipe.is_default ? '<span class="ml-2 text-xs text-[#A8A29E]">(default)</span>' : ''}
+            </div>
+            ${selectedRecipe?.id === recipe.id ? `
+              <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            ` : ''}
+          </div>
+          ${recipe.description ? `<p class="text-xs text-[#A8A29E] mt-0.5">${escapeHtml(recipe.description)}</p>` : ''}
+        `;
+
+        recipeDropdown.appendChild(item);
+      }
+    }
+
+    // Select a recipe
+    function selectRecipe(recipe) {
+      selectedRecipe = recipe;
+      selectedRecipeName.textContent = recipe.name;
+      renderRecipeDropdown();
+    }
+
+    // Find best recipe for a given source type
+    function findRecipeForSource(source) {
+      // First try to find a recipe with matching source
+      const matchingRecipe = recipes.find(r => r.source === source);
+      if (matchingRecipe) return matchingRecipe;
+
+      // Fall back to default recipe
+      return recipes.find(r => r.is_default) || recipes[0] || null;
+    }
+
+    // Auto-select recipe based on input type
+    function autoSelectRecipeForInputType(inputType) {
+      if (!recipes.length) return;
+
+      // Map input types to recipe sources
+      const sourceMap = {
+        'url': 'url',
+        'producthunt': 'producthunt',
+        'prompt': 'prompt',
+        'image': 'image'
+      };
+
+      const source = sourceMap[inputType];
+      if (!source) return;
+
+      const recipe = findRecipeForSource(source);
+      if (recipe && recipe.id !== selectedRecipe?.id) {
+        selectRecipe(recipe);
+      }
+    }
+
+    // Toggle recipe dropdown
+    function toggleRecipeDropdown() {
+      recipeDropdown.classList.toggle('hidden');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!recipeSelector.contains(e.target) && !recipeDropdown.contains(e.target)) {
+        recipeDropdown.classList.add('hidden');
+      }
+    });
+
+    // Recipe selector click handler
+    recipeSelector.addEventListener('click', toggleRecipeDropdown);
+
+    // Event listeners for smart input
+    smartInput.addEventListener('input', () => {
+      updateInputHint();
+      autoResize();
+    });
+
+    smartInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        generateFromInput();
+      }
+    });
+
+    generateBtn.addEventListener('click', generateFromInput);
+
+    // Image handling
+    imageUpload.addEventListener('change', (e) => {
+      if (e.target.files[0]) {
+        handleImageUpload(e.target.files[0]);
+      }
+    });
+
+    removeImageBtn.addEventListener('click', removeImage);
+
+    // Drag and drop for images
+    const smartInputContainer = document.getElementById('smartInputContainer');
+    smartInputContainer.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      smartInputContainer.classList.add('border-brand-400', 'bg-brand-50');
+    });
+
+    smartInputContainer.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      smartInputContainer.classList.remove('border-brand-400', 'bg-brand-50');
+    });
+
+    smartInputContainer.addEventListener('drop', (e) => {
+      e.preventDefault();
+      smartInputContainer.classList.remove('border-brand-400', 'bg-brand-50');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        handleImageUpload(file);
+      }
+    });
+
+    // Paste image from clipboard
+    smartInput.addEventListener('paste', (e) => {
+      const items = e.clipboardData?.items;
+      if (items) {
+        for (const item of items) {
+          if (item.type.startsWith('image/')) {
+            e.preventDefault();
+            const file = item.getAsFile();
+            handleImageUpload(file);
+            break;
+          }
+        }
+      }
+    });
+
+    // Quick action buttons
+    phTodayBtn.addEventListener('click', () => {
+      // Auto-select Product Hunt recipe if available
+      autoSelectRecipeForInputType('producthunt');
+      const today = new Date().toISOString().split('T')[0];
+      fetchProductHunt(today);
+    });
+
+    datePicker.addEventListener('change', () => {
+      if (datePicker.value) {
+        // Auto-select Product Hunt recipe if available
+        autoSelectRecipeForInputType('producthunt');
+        fetchProductHunt(datePicker.value);
+      }
+    });
 
     // Initialize date picker with today's date as max
-    const datePicker = document.getElementById('datePicker');
     const today = new Date().toISOString().split('T')[0];
     datePicker.max = today;
     datePicker.value = today;
 
-    // Load initial dates and ideas
-    loadDates();
+    // Load all ideas and recipes on startup
+    loadAllIdeas();
+    loadRecipes();
   </script>
 </body>
 </html>

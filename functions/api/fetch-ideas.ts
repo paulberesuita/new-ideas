@@ -1,6 +1,7 @@
 import { handleCorsPreflight } from '../utils/cors';
 import { successResponse, errorResponse } from '../utils/response';
 import { getTodayDateString, isValidDateString } from '../utils/validation';
+import { getPromptFromRecipe, formatPrompt } from '../utils/prompt';
 import type {
   Env,
   ProductHuntPost,
@@ -79,7 +80,9 @@ async function fetchProductHuntLaunches(apiToken?: string, targetDate?: string):
 async function generateIdeasWithClaude(
   posts: ProductHuntPost[],
   apiKey: string,
-  targetDate: string
+  targetDate: string,
+  db: Env['IDEAS_DB'],
+  recipeId?: number
 ): Promise<Idea[]> {
   const products = posts.map((p) => ({
     name: p.node.name,
@@ -91,26 +94,13 @@ async function generateIdeasWithClaude(
   }));
 
   const productCount = products.length;
-  const prompt = `You are a creative indie hacker looking for weekend project ideas. Analyze these top ${productCount} Product Hunt launches and use them as INSPIRATION to generate 3 unique project ideas for each.
 
-IMPORTANT GUIDELINES:
-- Ideas should be buildable by a solo developer in a weekend
-- Focus on web apps or Chrome extensions
-- NO ideas involving embedding external content (TikTok, YouTube, etc.)
-- AI agent ideas are encouraged - automations, bots, or AI-powered tools
-- Don't just simplify the original product - create something NEW inspired by the core concept
-- Each idea should be 1-2 sentences describing what it does and why it's useful
-- Be specific and actionable
-
-Products:
-${products.map((p, i) => `${i + 1}. ${p.name} - ${p.tagline}`).join('\n')}
-
-Return a JSON array with this structure - one object for each product (${productCount} total):
-[
-  {
-    "mini_ideas": ["first idea", "second idea", "third idea"]
-  }
-]`;
+  // Get prompt from recipe or use default
+  const promptTemplate = await getPromptFromRecipe(db, recipeId);
+  const prompt = formatPrompt(promptTemplate, {
+    productCount,
+    products,
+  });
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -161,6 +151,7 @@ Return a JSON array with this structure - one object for each product (${product
         ph_upvotes: product.upvotes,
         ph_image: product.image || undefined,
         mini_ideas: ideas[idx].mini_ideas || [],
+        title_summaries: ideas[idx].title_summaries || [],
       });
     }
   });
@@ -170,13 +161,15 @@ Return a JSON array with this structure - one object for each product (${product
 
 async function saveIdeasToDB(ideas: Idea[], db: Env['IDEAS_DB']): Promise<void> {
   const stmt = db.prepare(`
-    INSERT INTO ideas (date, ph_name, ph_tagline, ph_url, ph_upvotes, ph_image, mini_idea)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO ideas (date, ph_name, ph_tagline, ph_url, ph_upvotes, ph_image, mini_idea, title_summaries)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   for (const idea of ideas) {
     // Store mini_ideas as JSON string in the mini_idea column
     const miniIdeasJson = JSON.stringify(idea.mini_ideas || []);
+    // Store title_summaries as JSON string
+    const titleSummariesJson = JSON.stringify(idea.title_summaries || []);
     await stmt
       .bind(
         idea.date,
@@ -185,7 +178,8 @@ async function saveIdeasToDB(ideas: Idea[], db: Env['IDEAS_DB']): Promise<void> 
         idea.ph_url,
         idea.ph_upvotes,
         idea.ph_image || null,
-        miniIdeasJson
+        miniIdeasJson,
+        titleSummariesJson
       )
       .run();
   }
@@ -200,6 +194,8 @@ export const onRequestPost = async (context: PagesFunctionContext) => {
   const { request, env } = context;
   const url = new URL(request.url);
   const specificDate = url.searchParams.get('date'); // Format: YYYY-MM-DD
+  const recipeIdParam = url.searchParams.get('recipe_id');
+  const recipeId = recipeIdParam ? parseInt(recipeIdParam, 10) : undefined;
 
   try {
     if (!env.ANTHROPIC_API_KEY) {
@@ -222,8 +218,8 @@ export const onRequestPost = async (context: PagesFunctionContext) => {
       return errorResponse(`No Product Hunt launches found for ${targetDate}`, request, 404);
     }
 
-    // Generate ideas with Claude
-    const ideas = await generateIdeasWithClaude(posts, env.ANTHROPIC_API_KEY, targetDate);
+    // Generate ideas with Claude using the selected recipe
+    const ideas = await generateIdeasWithClaude(posts, env.ANTHROPIC_API_KEY, targetDate, env.IDEAS_DB, recipeId);
 
     // Save to database
     await saveIdeasToDB(ideas, env.IDEAS_DB);

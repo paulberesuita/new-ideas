@@ -63,6 +63,7 @@ export interface Idea {
   ph_upvotes: number;
   ph_image?: string;
   mini_ideas: string[];
+  title_summaries: string[]; // Array of title summaries (max 6 words each) matching mini_ideas order
 }
 
 export interface IdeaRow {
@@ -74,6 +75,7 @@ export interface IdeaRow {
   ph_upvotes: number;
   ph_image?: string;
   mini_idea: string; // JSON string
+  title_summaries?: string; // JSON string array of title summaries
   created_at: string;
 }
 
@@ -88,5 +90,31 @@ export interface PagesFunctionContext {
   request: Request;
   env: Env;
   params?: Record<string, string>;
+}
+
+export type RecipeSource = 'producthunt' | 'url' | 'prompt' | 'image' | null;
+
+export interface Recipe {
+  id: number;
+  name: string;
+  description?: string;
+  prompt_style?: string;
+  exclusions: string[]; // Parsed from JSON
+  source?: RecipeSource; // What input type this recipe is for
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RecipeRow {
+  id: number;
+  name: string;
+  description?: string;
+  prompt_style?: string;
+  exclusions?: string; // JSON string
+  source?: string; // 'producthunt', 'url', 'prompt', 'image', or null
+  is_default: number; // SQLite stores as 0/1
+  created_at: string;
+  updated_at: string;
 }
 

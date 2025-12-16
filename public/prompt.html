@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Prompt - Spark</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#FFF7ED',
+              100: '#FFEDD5',
+              200: '#FED7AA',
+              300: '#FDBA74',
+              400: '#FB923C',
+              500: '#F97316',
+              600: '#EA580C',
+              700: '#C2410C',
+              800: '#9A3412',
+              900: '#7C2D12',
+            },
+            surface: {
+              50: '#FAFAF9',
+              100: '#F5F5F4',
+              200: '#E7E5E4',
+            },
+            warm: {
+              dark: '#57534E',
+              medium: '#78716C',
+              light: '#A8A29E',
+              lighter: '#D6D3D1',
+              border: '#E7E5E4',
+            },
+            accent: '#F59E0B',
+            success: '#16A34A',
+            danger: '#DC2626',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-[#FAFAF9] min-h-screen">
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <a href="/" class="flex items-center gap-2 text-2xl font-bold text-[#1C1917] hover:text-brand-600 transition-colors">
+            <div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <span>Spark</span>
+          </a>
+        </div>
+        <a href="/" class="text-sm font-medium text-[#78716C] hover:text-brand-600 transition-colors">
+          ← Back to Ideas
+        </a>
+      </div>
+      <h1 class="text-3xl font-bold text-[#1C1917] mb-2">Edit Prompt</h1>
+      <p class="text-[#78716C]">Customize the prompt used to generate build ideas. This helps improve the quality and relevance of generated ideas.</p>
+    </div>
+
+    <!-- Status Message -->
+    <div id="statusMessage" class="hidden mb-6 p-4 rounded-xl border"></div>
+
+    <!-- Prompt Editor -->
+    <div class="bg-white rounded-2xl border border-[#E7E5E4] p-6 mb-6">
+      <div class="mb-4">
+        <label class="block text-sm font-semibold text-[#1C1917] mb-2">
+          Prompt Template
+        </label>
+        <p class="text-xs text-[#78716C] mb-4">
+          Use <code class="bg-[#E7E5E4] px-1.5 py-0.5 rounded">{"{"}productCount{"}"}</code> for the number of products, 
+          <code class="bg-[#E7E5E4] px-1.5 py-0.5 rounded">{"{"}products{"}"}</code> for the product list, 
+          and <code class="bg-[#E7E5E4] px-1.5 py-0.5 rounded">{"{"}productName{"}"}</code>, 
+          <code class="bg-[#E7E5E4] px-1.5 py-0.5 rounded">{"{"}productTagline{"}"}</code>, 
+          <code class="bg-[#E7E5E4] px-1.5 py-0.5 rounded">{"{"}productDescription{"}"}</code> for individual product fields.
+        </p>
+      </div>
+      <textarea
+        id="promptInput"
+        rows="20"
+        class="w-full p-4 border border-[#E7E5E4] rounded-xl font-mono text-sm text-[#1C1917] focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:outline-none resize-y"
+        placeholder="Enter your custom prompt here..."
+      ></textarea>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-4">
+      <button
+        id="saveBtn"
+        class="bg-brand-500 hover:bg-brand-600 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed inline-flex items-center gap-2"
+      >
+        <svg id="saveBtnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span id="saveBtnText">Save Prompt</span>
+        <svg id="saveBtnSpinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </button>
+      <button
+        id="resetBtn"
+        class="bg-white text-[#57534E] font-medium py-3 px-6 rounded-xl border border-[#D6D3D1] hover:bg-surface-50 hover:border-[#A8A29E] transition-all duration-200"
+      >
+        Reset to Default
+      </button>
+      <button
+        id="previewBtn"
+        class="bg-white text-[#57534E] font-medium py-3 px-6 rounded-xl border border-[#D6D3D1] hover:bg-surface-50 hover:border-[#A8A29E] transition-all duration-200"
+      >
+        Preview with Sample
+      </button>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white border-b border-[#E7E5E4] p-6 flex items-center justify-between">
+          <h2 class="text-xl font-bold text-[#1C1917]">Prompt Preview</h2>
+          <button id="closePreview" class="text-[#78716C] hover:text-[#1C1917]">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="p-6">
+          <pre id="previewContent" class="whitespace-pre-wrap font-mono text-sm text-[#1C1917] bg-[#FAFAF9] p-4 rounded-xl border border-[#E7E5E4]"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const promptInput = document.getElementById('promptInput');
+    const saveBtn = document.getElementById('saveBtn');
+    const saveBtnText = document.getElementById('saveBtnText');
+    const saveBtnIcon = document.getElementById('saveBtnIcon');
+    const saveBtnSpinner = document.getElementById('saveBtnSpinner');
+    const resetBtn = document.getElementById('resetBtn');
+    const previewBtn = document.getElementById('previewBtn');
+    const statusMessage = document.getElementById('statusMessage');
+    const previewModal = document.getElementById('previewModal');
+    const previewContent = document.getElementById('previewContent');
+    const closePreview = document.getElementById('closePreview');
+
+    // Set default prompt immediately so textarea isn't blank
+    if (promptInput) {
+      promptInput.value = ''; // Will be set by loadPrompt, but initialize empty
+    }
+
+    // Default prompt template
+    const defaultPrompt = `You are a creative indie hacker looking for weekend project ideas. Analyze these top {productCount} Product Hunt launches and use them as INSPIRATION to generate 3 unique project ideas for each.
+
+IMPORTANT GUIDELINES:
+- Ideas should be buildable by a solo developer in a weekend
+- Focus on web apps or Chrome extensions
+- NO ideas involving embedding external content (TikTok, YouTube, etc.)
+- AI agent ideas are encouraged - automations, bots, or AI-powered tools
+- Don't just simplify the original product - create something NEW inspired by the core concept
+- Each idea should be 1-2 sentences describing what it does and why it's useful
+- Be specific and actionable
+
+Products:
+{products}
+
+Return a JSON array with this structure - one object for each product ({productCount} total):
+[
+  {
+    "mini_ideas": ["first idea", "second idea", "third idea"]
+  }
+]`;
+
+    // Load current prompt
+    async function loadPrompt() {
+      try {
+        const response = await fetch('/api/prompt');
+        
+        if (!response.ok) {
+          console.warn('Failed to load prompt, using default');
+          promptInput.value = defaultPrompt;
+          return;
+        }
+        
+        const data = await response.json();
+        console.log('Prompt API response:', data);
+        
+        // Handle both old format { prompt: ... } and new format { success: true, data: { prompt: ... } }
+        const prompt = data.data?.prompt || data.prompt;
+        
+        if (prompt && prompt.trim().length > 0) {
+          promptInput.value = prompt;
+        } else {
+          console.warn('No prompt found, using default');
+          promptInput.value = defaultPrompt;
+        }
+      } catch (error) {
+        console.error('Error loading prompt:', error);
+        promptInput.value = defaultPrompt;
+      }
+    }
+
+    // Save prompt
+    async function savePrompt() {
+      const prompt = promptInput.value.trim();
+      
+      if (!prompt) {
+        showStatus('Please enter a prompt', 'error');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      saveBtnText.textContent = 'Saving...';
+      saveBtnIcon.classList.add('hidden');
+      saveBtnSpinner.classList.remove('hidden');
+
+      try {
+        const response = await fetch('/api/prompt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}: ${response.statusText}` }));
+          const error = errorData.data?.error || errorData.error || `HTTP ${response.status}: ${response.statusText}`;
+          showStatus(`Error: ${error}`, 'error');
+          return;
+        }
+
+        const data = await response.json();
+
+        if (data.success || (data.data && data.data.success)) {
+          showStatus('Prompt saved successfully! ✨', 'success');
+        } else {
+          const error = data.data?.error || data.error || 'Failed to save prompt';
+          showStatus(`Error: ${error}`, 'error');
+        }
+      } catch (error: any) {
+        const errorMessage = error?.message || error?.toString() || 'Unknown error occurred';
+        showStatus(`Error: ${errorMessage}`, 'error');
+        console.error('Save prompt error:', error);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtnText.textContent = 'Save Prompt';
+        saveBtnIcon.classList.remove('hidden');
+        saveBtnSpinner.classList.add('hidden');
+      }
+    }
+
+    // Reset to default
+    function resetPrompt() {
+      if (confirm('Are you sure you want to reset to the default prompt? This will discard your current changes.')) {
+        promptInput.value = defaultPrompt;
+        showStatus('Reset to default prompt', 'info');
+      }
+    }
+
+    // Preview prompt with sample data
+    function previewPrompt() {
+      const prompt = promptInput.value.trim();
+      if (!prompt) {
+        showStatus('Please enter a prompt first', 'error');
+        return;
+      }
+
+      // Sample data for preview
+      const sampleData = {
+        productCount: 3,
+        products: `1. Example Product - A great tool for developers
+2. Another Tool - Makes life easier
+3. Third Product - Innovation at its finest`,
+        productName: 'Example Product',
+        productTagline: 'A great tool for developers',
+        productDescription: 'This is a detailed description of an example product that helps developers build better applications.',
+      };
+
+      // Replace placeholders
+      let preview = prompt
+        .replace(/\{productCount\}/g, sampleData.productCount)
+        .replace(/\{products\}/g, sampleData.products)
+        .replace(/\{productName\}/g, sampleData.productName)
+        .replace(/\{productTagline\}/g, sampleData.productTagline)
+        .replace(/\{productDescription\}/g, sampleData.productDescription);
+
+      previewContent.textContent = preview;
+      previewModal.classList.remove('hidden');
+    }
+
+    // Show status message
+    function showStatus(message, type = 'info') {
+      statusMessage.textContent = message;
+      statusMessage.className = `mb-6 p-4 rounded-xl border`;
+      
+      if (type === 'success') {
+        statusMessage.classList.add('bg-green-50', 'border-green-200', 'text-green-700');
+      } else if (type === 'error') {
+        statusMessage.classList.add('bg-red-50', 'border-red-200', 'text-red-700');
+      } else {
+        statusMessage.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-700');
+      }
+      
+      statusMessage.classList.remove('hidden');
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        statusMessage.classList.add('hidden');
+      }, 5000);
+    }
+
+    // Event listeners
+    saveBtn.addEventListener('click', savePrompt);
+    resetBtn.addEventListener('click', resetPrompt);
+    previewBtn.addEventListener('click', previewPrompt);
+    closePreview.addEventListener('click', () => {
+      previewModal.classList.add('hidden');
+    });
+
+    // Close modal on outside click
+    previewModal.addEventListener('click', (e) => {
+      if (e.target === previewModal) {
+        previewModal.classList.add('hidden');
+      }
+    });
+
+    // Load prompt on page load
+    // Set default immediately, then load from API
+    if (promptInput) {
+      promptInput.value = defaultPrompt;
+    }
+    loadPrompt();
+  </script>
+</body>
+</html>
+

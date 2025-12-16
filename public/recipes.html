@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipes - Spark</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#FFF7ED',
+              100: '#FFEDD5',
+              200: '#FED7AA',
+              300: '#FDBA74',
+              400: '#FB923C',
+              500: '#F97316',
+              600: '#EA580C',
+              700: '#C2410C',
+              800: '#9A3412',
+              900: '#7C2D12',
+            },
+            surface: {
+              50: '#FAFAF9',
+              100: '#F5F5F4',
+              200: '#E7E5E4',
+            },
+            warm: {
+              dark: '#57534E',
+              medium: '#78716C',
+              light: '#A8A29E',
+              lighter: '#D6D3D1',
+              border: '#E7E5E4',
+            },
+            success: '#16A34A',
+            danger: '#DC2626',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .card-hover {
+      transition: all 0.2s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-[#E8E6E3] min-h-screen">
+  <div class="container mx-auto px-4 py-12 max-w-4xl">
+    <!-- Header -->
+    <header class="mb-10">
+      <div class="flex items-center justify-between mb-4">
+        <a href="/" class="inline-flex items-center gap-2 text-[#78716C] hover:text-brand-600 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          <span class="font-medium">Back to Spark</span>
+        </a>
+      </div>
+      <div class="text-center">
+        <h1 class="text-3xl font-bold text-[#1C1917] mb-2">Recipes</h1>
+        <p class="text-[#78716C]">Saved configurations for idea generation</p>
+      </div>
+    </header>
+
+    <!-- Recipe List -->
+    <div id="recipesList" class="space-y-4 mb-8">
+      <!-- Recipes will be loaded here -->
+    </div>
+
+    <!-- Add New Recipe Button -->
+    <button
+      id="addRecipeBtn"
+      class="w-full py-4 border-2 border-dashed border-[#D6D3D1] rounded-xl text-[#78716C] hover:border-brand-400 hover:text-brand-600 transition-all duration-200 font-medium"
+    >
+      + Add New Recipe
+    </button>
+
+    <!-- Recipe Editor Modal -->
+    <div id="recipeModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 hidden z-50">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 id="modalTitle" class="text-xl font-bold text-[#1C1917]">New Recipe</h2>
+            <button id="closeModalBtn" class="text-[#A8A29E] hover:text-[#1C1917] transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <form id="recipeForm" class="space-y-5">
+            <input type="hidden" id="recipeId" value="">
+
+            <!-- Name -->
+            <div>
+              <label for="recipeName" class="block text-sm font-medium text-[#57534E] mb-1.5">Name</label>
+              <input
+                type="text"
+                id="recipeName"
+                required
+                class="w-full px-4 py-3 border border-[#E7E5E4] rounded-lg focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all text-[#1C1917] placeholder-[#A8A29E]"
+                placeholder="e.g., Weekend Builder"
+              />
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label for="recipeDescription" class="block text-sm font-medium text-[#57534E] mb-1.5">Description <span class="text-[#A8A29E] font-normal">(optional)</span></label>
+              <input
+                type="text"
+                id="recipeDescription"
+                class="w-full px-4 py-3 border border-[#E7E5E4] rounded-lg focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all text-[#1C1917] placeholder-[#A8A29E]"
+                placeholder="e.g., Solo developer weekend projects"
+              />
+            </div>
+
+            <!-- Source -->
+            <div>
+              <label for="recipeSource" class="block text-sm font-medium text-[#57534E] mb-1.5">Source <span class="text-[#A8A29E] font-normal">(optional)</span></label>
+              <select
+                id="recipeSource"
+                class="w-full px-4 py-3 border border-[#E7E5E4] rounded-lg focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all text-[#1C1917] bg-white"
+              >
+                <option value="">Any source</option>
+                <option value="producthunt">Product Hunt</option>
+                <option value="url">URL / Website</option>
+                <option value="prompt">Text Prompt</option>
+                <option value="image">Image / Screenshot</option>
+              </select>
+              <p class="mt-1.5 text-xs text-[#A8A29E]">Auto-select this recipe when using a specific input type</p>
+            </div>
+
+            <!-- Prompt Style -->
+            <div>
+              <label for="recipePromptStyle" class="block text-sm font-medium text-[#57534E] mb-1.5">Prompt Style</label>
+              <textarea
+                id="recipePromptStyle"
+                rows="4"
+                class="w-full px-4 py-3 border border-[#E7E5E4] rounded-lg focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all text-[#1C1917] placeholder-[#A8A29E] resize-none"
+                placeholder="e.g., Focus on web apps or Chrome extensions that are buildable in a weekend. AI agent ideas are encouraged."
+              ></textarea>
+              <p class="mt-1.5 text-xs text-[#A8A29E]">This guides how Claude generates ideas</p>
+            </div>
+
+            <!-- Exclusions -->
+            <div>
+              <label for="recipeExclusions" class="block text-sm font-medium text-[#57534E] mb-1.5">Exclusions</label>
+              <div id="exclusionsList" class="flex flex-wrap gap-2 mb-3">
+                <!-- Exclusion tags will be added here -->
+              </div>
+              <div class="flex gap-2">
+                <input
+                  type="text"
+                  id="newExclusion"
+                  class="flex-1 px-4 py-2.5 border border-[#E7E5E4] rounded-lg focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all text-[#1C1917] placeholder-[#A8A29E] text-sm"
+                  placeholder="e.g., video generation tools"
+                />
+                <button
+                  type="button"
+                  id="addExclusionBtn"
+                  class="px-4 py-2.5 bg-[#E7E5E4] hover:bg-[#D6D3D1] text-[#57534E] rounded-lg transition-colors text-sm font-medium"
+                >
+                  Add
+                </button>
+              </div>
+              <p class="mt-1.5 text-xs text-[#A8A29E]">Types of ideas to avoid generating</p>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between pt-4 border-t border-[#E7E5E4]">
+              <button
+                type="button"
+                id="deleteRecipeBtn"
+                class="hidden text-[#DC2626] hover:text-red-700 font-medium text-sm transition-colors"
+              >
+                Delete Recipe
+              </button>
+              <div class="flex items-center gap-3 ml-auto">
+                <button
+                  type="button"
+                  id="cancelBtn"
+                  class="px-5 py-2.5 text-[#78716C] hover:text-[#1C1917] font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg transition-colors"
+                >
+                  Save Recipe
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Message -->
+    <div id="statusMessage" class="fixed bottom-6 left-1/2 -translate-x-1/2 hidden">
+      <div class="px-5 py-3 rounded-lg shadow-lg font-medium text-sm"></div>
+    </div>
+  </div>
+
+  <script>
+    let recipes = [];
+    let currentExclusions = [];
+    let editingRecipeId = null;
+
+    const recipesList = document.getElementById('recipesList');
+    const addRecipeBtn = document.getElementById('addRecipeBtn');
+    const recipeModal = document.getElementById('recipeModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const recipeForm = document.getElementById('recipeForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const recipeIdInput = document.getElementById('recipeId');
+    const recipeNameInput = document.getElementById('recipeName');
+    const recipeDescriptionInput = document.getElementById('recipeDescription');
+    const recipeSourceInput = document.getElementById('recipeSource');
+    const recipePromptStyleInput = document.getElementById('recipePromptStyle');
+    const exclusionsList = document.getElementById('exclusionsList');
+    const newExclusionInput = document.getElementById('newExclusion');
+    const addExclusionBtn = document.getElementById('addExclusionBtn');
+    const deleteRecipeBtn = document.getElementById('deleteRecipeBtn');
+    const statusMessage = document.getElementById('statusMessage');
+
+    // Load all recipes
+    async function loadRecipes() {
+      try {
+        const response = await fetch('/api/recipes');
+        const data = await response.json();
+        recipes = data.data || data || [];
+        renderRecipes();
+      } catch (error) {
+        console.error('Error loading recipes:', error);
+        showStatus('Error loading recipes', 'error');
+      }
+    }
+
+    // Render recipes list
+    function renderRecipes() {
+      recipesList.innerHTML = '';
+
+      if (recipes.length === 0) {
+        recipesList.innerHTML = '<p class="text-center text-[#78716C] py-8">No recipes yet. Create your first one!</p>';
+        return;
+      }
+
+      for (const recipe of recipes) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl p-5 shadow-sm border border-[#E7E5E4] card-hover cursor-pointer';
+        card.onclick = () => openEditModal(recipe);
+
+        const exclusionsText = recipe.exclusions && recipe.exclusions.length > 0
+          ? recipe.exclusions.slice(0, 3).join(', ') + (recipe.exclusions.length > 3 ? ` +${recipe.exclusions.length - 3} more` : '')
+          : 'None';
+
+        const sourceLabels = {
+          producthunt: 'Product Hunt',
+          url: 'URL',
+          prompt: 'Prompt',
+          image: 'Image'
+        };
+        const sourceLabel = recipe.source ? sourceLabels[recipe.source] : null;
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <h3 class="text-lg font-semibold text-[#1C1917] truncate">${escapeHtml(recipe.name)}</h3>
+                ${recipe.is_default ? '<span class="px-2 py-0.5 bg-brand-100 text-brand-700 text-xs font-medium rounded-full">Default</span>' : ''}
+                ${sourceLabel ? `<span class="px-2 py-0.5 bg-[#E0E7FF] text-[#4338CA] text-xs font-medium rounded-full">${sourceLabel}</span>` : ''}
+              </div>
+              ${recipe.description ? `<p class="text-sm text-[#78716C] mb-3">${escapeHtml(recipe.description)}</p>` : ''}
+              <div class="flex flex-wrap gap-4 text-xs text-[#A8A29E]">
+                <div class="flex items-center gap-1.5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  <span>${recipe.prompt_style ? 'Custom prompt' : 'Default prompt'}</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                  </svg>
+                  <span>${exclusionsText}</span>
+                </div>
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-[#A8A29E] flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </div>
+        `;
+
+        recipesList.appendChild(card);
+      }
+    }
+
+    // Open modal for new recipe
+    function openNewModal() {
+      editingRecipeId = null;
+      modalTitle.textContent = 'New Recipe';
+      recipeIdInput.value = '';
+      recipeNameInput.value = '';
+      recipeDescriptionInput.value = '';
+      recipeSourceInput.value = '';
+      recipePromptStyleInput.value = '';
+      currentExclusions = [];
+      renderExclusions();
+      deleteRecipeBtn.classList.add('hidden');
+      recipeModal.classList.remove('hidden');
+      recipeNameInput.focus();
+    }
+
+    // Open modal for editing
+    function openEditModal(recipe) {
+      editingRecipeId = recipe.id;
+      modalTitle.textContent = 'Edit Recipe';
+      recipeIdInput.value = recipe.id;
+      recipeNameInput.value = recipe.name;
+      recipeDescriptionInput.value = recipe.description || '';
+      recipeSourceInput.value = recipe.source || '';
+      recipePromptStyleInput.value = recipe.prompt_style || '';
+      currentExclusions = [...(recipe.exclusions || [])];
+      renderExclusions();
+
+      // Show delete button only for non-default recipes
+      if (recipe.is_default) {
+        deleteRecipeBtn.classList.add('hidden');
+      } else {
+        deleteRecipeBtn.classList.remove('hidden');
+      }
+
+      recipeModal.classList.remove('hidden');
+      recipeNameInput.focus();
+    }
+
+    // Close modal
+    function closeModal() {
+      recipeModal.classList.add('hidden');
+      editingRecipeId = null;
+    }
+
+    // Render exclusions tags
+    function renderExclusions() {
+      exclusionsList.innerHTML = '';
+
+      for (let i = 0; i < currentExclusions.length; i++) {
+        const tag = document.createElement('span');
+        tag.className = 'inline-flex items-center gap-1 px-3 py-1.5 bg-[#F5F5F4] text-[#57534E] text-sm rounded-full';
+        tag.innerHTML = `
+          ${escapeHtml(currentExclusions[i])}
+          <button type="button" class="text-[#A8A29E] hover:text-[#DC2626] transition-colors" data-index="${i}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        `;
+
+        const removeBtn = tag.querySelector('button');
+        removeBtn.onclick = (e) => {
+          e.preventDefault();
+          currentExclusions.splice(i, 1);
+          renderExclusions();
+        };
+
+        exclusionsList.appendChild(tag);
+      }
+    }
+
+    // Add exclusion
+    function addExclusion() {
+      const value = newExclusionInput.value.trim();
+      if (value && !currentExclusions.includes(value)) {
+        currentExclusions.push(value);
+        renderExclusions();
+        newExclusionInput.value = '';
+      }
+      newExclusionInput.focus();
+    }
+
+    // Save recipe
+    async function saveRecipe(e) {
+      e.preventDefault();
+
+      const recipeData = {
+        name: recipeNameInput.value.trim(),
+        description: recipeDescriptionInput.value.trim() || null,
+        source: recipeSourceInput.value || null,
+        prompt_style: recipePromptStyleInput.value.trim() || null,
+        exclusions: currentExclusions,
+      };
+
+      try {
+        let response;
+
+        if (editingRecipeId) {
+          // Update existing recipe
+          response = await fetch(`/api/recipes/${editingRecipeId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(recipeData),
+          });
+        } else {
+          // Create new recipe
+          response = await fetch('/api/recipes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(recipeData),
+          });
+        }
+
+        const data = await response.json();
+
+        if (data.success !== false && !data.error) {
+          closeModal();
+          await loadRecipes();
+          showStatus(editingRecipeId ? 'Recipe updated!' : 'Recipe created!', 'success');
+        } else {
+          showStatus(data.error || 'Error saving recipe', 'error');
+        }
+      } catch (error) {
+        console.error('Error saving recipe:', error);
+        showStatus('Error saving recipe', 'error');
+      }
+    }
+
+    // Delete recipe
+    async function deleteRecipe() {
+      if (!editingRecipeId) return;
+
+      if (!confirm('Are you sure you want to delete this recipe?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/recipes/${editingRecipeId}`, {
+          method: 'DELETE',
+        });
+
+        const data = await response.json();
+
+        if (data.success !== false && !data.error) {
+          closeModal();
+          await loadRecipes();
+          showStatus('Recipe deleted!', 'success');
+        } else {
+          showStatus(data.error || 'Error deleting recipe', 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting recipe:', error);
+        showStatus('Error deleting recipe', 'error');
+      }
+    }
+
+    // Show status message
+    function showStatus(message, type) {
+      const inner = statusMessage.querySelector('div');
+      inner.textContent = message;
+      inner.className = `px-5 py-3 rounded-lg shadow-lg font-medium text-sm ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+      }`;
+      statusMessage.classList.remove('hidden');
+
+      setTimeout(() => {
+        statusMessage.classList.add('hidden');
+      }, 3000);
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Event listeners
+    addRecipeBtn.addEventListener('click', openNewModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    recipeForm.addEventListener('submit', saveRecipe);
+    addExclusionBtn.addEventListener('click', addExclusion);
+    deleteRecipeBtn.addEventListener('click', deleteRecipe);
+
+    newExclusionInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addExclusion();
+      }
+    });
+
+    // Close modal on backdrop click
+    recipeModal.addEventListener('click', (e) => {
+      if (e.target === recipeModal) {
+        closeModal();
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !recipeModal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+
+    // Load recipes on page load
+    loadRecipes();
+  </script>
+</body>
+</html>
