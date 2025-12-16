@@ -354,41 +354,37 @@
         return userRecipe.background_image_url;
       }
 
-      // 2. Try to find matching image in R2 by name
-      const keyToMatch = builtIn?.heroImageKey || (userRecipe ? `recipe-${userRecipe.id}` : null);
-      if (keyToMatch) {
-        const matchingImage = heroImages.find(img => img.name === keyToMatch);
-        if (matchingImage) {
-          return matchingImage.url;
-        }
+      // 2. If no hero images available, return null for gradient fallback
+      if (heroImages.length === 0) {
+        return null;
       }
 
-      // 3. For user recipes without custom image, rotate through available hero images
-      if (userRecipe && heroImages.length > 0) {
+      // 3. For built-in recipes, use a consistent image based on index
+      if (builtIn) {
+        const builtInIndex = BUILT_IN_RECIPES.findIndex(r => r.id === recipeId);
+        return heroImages[builtInIndex % heroImages.length].url;
+      }
+
+      // 4. For user recipes, rotate through available hero images
+      if (userRecipe) {
         const userRecipeIndex = recipes.findIndex(r => r.id === recipeId);
-        // Filter to only "default" hero images (not recipe-specific ones)
-        const defaultImages = heroImages.filter(img => !img.name.startsWith('recipe-'));
-        if (defaultImages.length > 0) {
-          return defaultImages[userRecipeIndex % defaultImages.length].url;
-        }
-        // Fallback to any image
         return heroImages[userRecipeIndex % heroImages.length].url;
       }
 
-      // 4. Fallback - return null to use gradient
-      return null;
+      // 5. Fallback - use first image or null
+      return heroImages[0]?.url || null;
     }
 
     // Update hero background based on selected recipe
     function updateHeroBackground() {
       const imageUrl = getHeroImageUrl(selectedRecipeId);
+      console.log('Hero image URL:', imageUrl, 'heroImages:', heroImages.length);
 
       if (imageUrl) {
-        heroSection.style.backgroundImage = `url('${imageUrl}')`;
-        heroSection.style.background = ''; // Clear any gradient
+        // Use background shorthand to set the image with cover sizing
+        heroSection.style.background = `url('${imageUrl}') center/cover no-repeat`;
       } else {
         // Use fallback gradient
-        heroSection.style.backgroundImage = 'none';
         heroSection.style.background = FALLBACK_GRADIENT;
       }
     }
