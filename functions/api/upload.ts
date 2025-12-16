@@ -52,7 +52,7 @@ export const onRequestPost = async (context: PagesFunctionContext) => {
     // Generate public URL using our proxy endpoint
     const url = new URL(request.url);
     const baseUrl = `${url.protocol}//${url.host}`;
-    const publicUrl = `${baseUrl}/api/images/${filename}`;
+    const publicUrl = `${baseUrl}/api/image?path=${encodeURIComponent(filename)}`;
 
     return successResponse(
       {

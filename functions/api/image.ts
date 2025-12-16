@@ -1,25 +1,21 @@
-import { errorResponse } from '../../utils/response';
-import type { Env, PagesFunctionContext } from '../../utils/types';
+import { errorResponse } from '../utils/response';
+import type { Env, PagesFunctionContext } from '../utils/types';
 
-interface ImageContext extends PagesFunctionContext {
-  params: { path: string };
-}
-
-// GET /api/images/[[path]] - Serve images from R2
-export const onRequestGet = async (context: ImageContext) => {
-  const { request, env, params } = context;
+// GET /api/image?path=heroes/technology.jpg - Serve images from R2
+export const onRequestGet = async (context: PagesFunctionContext) => {
+  const { request, env } = context;
 
   try {
     if (!env.IMAGES_BUCKET) {
       return new Response('Image storage not configured', { status: 500 });
     }
 
-    // Get path from URL (everything after /api/images/)
+    // Get path from query parameter
     const url = new URL(request.url);
-    const imagePath = url.pathname.replace('/api/images/', '');
+    const imagePath = url.searchParams.get('path');
 
     if (!imagePath) {
-      return new Response('Image path required', { status: 400 });
+      return new Response('Image path required (use ?path=...)', { status: 400 });
     }
 
     // Get the image from R2

@@ -24,7 +24,7 @@ export const onRequestGet = async (context: PagesFunctionContext) => {
 
     const images = list.objects.map((obj) => ({
       key: obj.key,
-      url: `${baseUrl}/api/images/${obj.key}`,
+      url: `${baseUrl}/api/image?path=${encodeURIComponent(obj.key)}`,
       name: obj.key.replace('heroes/', '').replace(/\.[^.]+$/, ''), // Remove prefix and extension
       size: obj.size,
       uploaded: obj.uploaded,

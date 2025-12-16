@@ -20,8 +20,69 @@ export type D1Database = {
   };
 };
 
+// R2Bucket type - Cloudflare Workers provides this at runtime
+export type R2Bucket = {
+  put(key: string, value: ReadableStream | ArrayBuffer | ArrayBufferView | string | null | Blob, options?: R2PutOptions): Promise<R2Object>;
+  get(key: string, options?: R2GetOptions): Promise<R2ObjectBody | null>;
+  delete(keys: string | string[]): Promise<void>;
+  list(options?: R2ListOptions): Promise<R2Objects>;
+};
+
+export interface R2PutOptions {
+  httpMetadata?: {
+    contentType?: string;
+    cacheControl?: string;
+  };
+  customMetadata?: Record<string, string>;
+}
+
+export interface R2GetOptions {
+  onlyIf?: R2Conditional;
+}
+
+export interface R2ListOptions {
+  prefix?: string;
+  limit?: number;
+  cursor?: string;
+}
+
+export interface R2Object {
+  key: string;
+  size: number;
+  etag: string;
+  uploaded: Date;
+  httpMetadata?: {
+    contentType?: string;
+    cacheControl?: string;
+  };
+  customMetadata?: Record<string, string>;
+}
+
+export interface R2ObjectBody extends R2Object {
+  body: ReadableStream;
+  bodyUsed: boolean;
+  arrayBuffer(): Promise<ArrayBuffer>;
+  text(): Promise<string>;
+  json<T = any>(): Promise<T>;
+  blob(): Promise<Blob>;
+}
+
+export interface R2Objects {
+  objects: R2Object[];
+  truncated: boolean;
+  cursor?: string;
+}
+
+export interface R2Conditional {
+  etagMatches?: string;
+  etagDoesNotMatch?: string;
+  uploadedBefore?: Date;
+  uploadedAfter?: Date;
+}
+
 export interface Env {
   IDEAS_DB: D1Database;
+  IMAGES_BUCKET: R2Bucket;
   ANTHROPIC_API_KEY: string;
   PRODUCT_HUNT_API_TOKEN?: string;
   CLERK_SECRET_KEY?: string; // For future auth
@@ -92,16 +153,14 @@ export interface PagesFunctionContext {
   params?: Record<string, string>;
 }
 
-export type RecipeSource = 'producthunt' | 'url' | 'prompt' | 'image' | null;
-
 export interface Recipe {
   id: number;
   name: string;
   description?: string;
   prompt_style?: string;
   exclusions: string[]; // Parsed from JSON
-  source?: RecipeSource; // What input type this recipe is for
   is_default: boolean;
+  background_image_url?: string;
   created_at: string;
   updated_at: string;
 }
@@ -112,8 +171,8 @@ export interface RecipeRow {
   description?: string;
   prompt_style?: string;
   exclusions?: string; // JSON string
-  source?: string; // 'producthunt', 'url', 'prompt', 'image', or null
   is_default: number; // SQLite stores as 0/1
+  background_image_url?: string;
   created_at: string;
   updated_at: string;
 }

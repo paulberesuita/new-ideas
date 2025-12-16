@@ -1,6 +1,6 @@
 import { handleCorsPreflight } from '../utils/cors';
 import { successResponse, errorResponse } from '../utils/response';
-import type { Env, PagesFunctionContext, Recipe, RecipeRow, RecipeSource } from '../utils/types';
+import type { Env, PagesFunctionContext, Recipe, RecipeRow } from '../utils/types';
 
 // Convert database row to Recipe object
 function rowToRecipe(row: RecipeRow): Recipe {
@@ -19,8 +19,8 @@ function rowToRecipe(row: RecipeRow): Recipe {
     description: row.description,
     prompt_style: row.prompt_style,
     exclusions,
-    source: (row.source as RecipeSource) || null,
     is_default: row.is_default === 1,
+    background_image_url: row.background_image_url,
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -57,7 +57,7 @@ export const onRequestPost = async (context: PagesFunctionContext) => {
       description?: string;
       prompt_style?: string;
       exclusions?: string[];
-      source?: string;
+      background_image_url?: string;
     };
 
     if (!body.name || !body.name.trim()) {
@@ -65,18 +65,16 @@ export const onRequestPost = async (context: PagesFunctionContext) => {
     }
 
     const exclusionsJson = JSON.stringify(body.exclusions || []);
-    const validSources = ['producthunt', 'url', 'prompt', 'image'];
-    const source = body.source && validSources.includes(body.source) ? body.source : null;
 
     const result = await env.IDEAS_DB.prepare(`
-      INSERT INTO recipes (name, description, prompt_style, exclusions, source, is_default)
+      INSERT INTO recipes (name, description, prompt_style, exclusions, background_image_url, is_default)
       VALUES (?, ?, ?, ?, ?, 0)
     `).bind(
       body.name.trim(),
       body.description?.trim() || null,
       body.prompt_style?.trim() || null,
       exclusionsJson,
-      source
+      body.background_image_url?.trim() || null
     ).run();
 
     if (!result.success) {

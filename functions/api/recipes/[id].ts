@@ -1,6 +1,6 @@
 import { handleCorsPreflight } from '../../utils/cors';
 import { successResponse, errorResponse } from '../../utils/response';
-import type { Env, Recipe, RecipeRow, RecipeSource } from '../../utils/types';
+import type { Env, Recipe, RecipeRow } from '../../utils/types';
 
 interface PagesFunctionContext {
   request: Request;
@@ -25,8 +25,8 @@ function rowToRecipe(row: RecipeRow): Recipe {
     description: row.description,
     prompt_style: row.prompt_style,
     exclusions,
-    source: (row.source as RecipeSource) || null,
     is_default: row.is_default === 1,
+    background_image_url: row.background_image_url,
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -75,7 +75,7 @@ export const onRequestPut = async (context: PagesFunctionContext) => {
       description?: string;
       prompt_style?: string;
       exclusions?: string[];
-      source?: string | null;
+      background_image_url?: string;
     };
 
     // Check if recipe exists
@@ -114,11 +114,9 @@ export const onRequestPut = async (context: PagesFunctionContext) => {
       values.push(JSON.stringify(body.exclusions));
     }
 
-    if (body.source !== undefined) {
-      const validSources = ['producthunt', 'url', 'prompt', 'image'];
-      const source = body.source && validSources.includes(body.source) ? body.source : null;
-      updates.push('source = ?');
-      values.push(source);
+    if (body.background_image_url !== undefined) {
+      updates.push('background_image_url = ?');
+      values.push(body.background_image_url?.trim() || null);
     }
 
     if (updates.length === 0) {

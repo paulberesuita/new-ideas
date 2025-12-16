@@ -155,136 +155,128 @@
     .compact-card.expanded .description-full {
       display: block;
     }
+    /* Recipe pill styles (YouTube-like) */
+    .recipe-pill {
+      flex-shrink: 0;
+      background-color: #F5F5F4;
+      color: #57534E;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .recipe-pill:hover {
+      background-color: #E7E5E4;
+    }
+    .recipe-pill.active {
+      background-color: #1C1917;
+      color: white;
+    }
+    .recipe-pill.special {
+      background-color: #FFF7ED;
+      color: #C2410C;
+      border-color: #FDBA74;
+    }
+    .recipe-pill.special:hover {
+      background-color: #FFEDD5;
+    }
+    .recipe-pill.special.active {
+      background-color: #EA580C;
+      color: white;
+      border-color: #EA580C;
+    }
+    /* Hero section styles */
+    .hero-section {
+      position: relative;
+      min-height: 320px;
+      background-size: cover;
+      background-position: center;
+      transition: background-image 0.5s ease-in-out;
+      overflow: hidden;
+    }
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 10;
+    }
+    /* Recipe pills on hero - solid colors for dark background */
+    .hero-recipe-pill {
+      flex-shrink: 0;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #57534E;
+      border: none;
+      white-space: nowrap;
+    }
+    .hero-recipe-pill:hover {
+      background-color: white;
+    }
+    .hero-recipe-pill.active {
+      background-color: #1C1917;
+      color: white;
+    }
+    .hero-recipe-pill.special {
+      background-color: #F97316;
+      color: white;
+    }
+    .hero-recipe-pill.special:hover {
+      background-color: #EA580C;
+    }
+    .hero-recipe-pill.special.active {
+      background-color: #C2410C;
+      color: white;
+    }
   </style>
 </head>
 <body class="bg-[#E8E6E3] min-h-screen">
-  <div class="container mx-auto px-4 py-12 max-w-6xl relative">
-    <!-- Top right Recipes button -->
-    <a href="/recipes.html" class="absolute top-4 right-4 inline-flex items-center gap-1.5 text-sm font-medium text-[#78716C] hover:text-brand-600 px-3 py-1.5 rounded-full bg-white border border-[#E7E5E4] hover:border-brand-300 transition-all">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-      </svg>
-      Recipes
-    </a>
-
-    <header class="mb-10 text-center">
-      <div class="inline-flex items-center gap-3 mb-4">
-        <div class="w-12 h-12 rounded-xl bg-brand-500 flex items-center justify-center shadow-lg">
-          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-          </svg>
-        </div>
-        <h1 class="text-4xl font-extrabold text-[#1C1917]">Spark</h1>
-      </div>
-      <p class="text-lg max-w-xl mx-auto text-[#78716C] italic">What will you build today?</p>
-    </header>
-
-    <!-- Smart Input -->
-    <div class="mb-10 max-w-2xl mx-auto">
-      <div
-        id="smartInputContainer"
-        class="bg-white rounded-lg shadow-sm border border-[#E7E5E4] focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100 transition-all"
-      >
-        <div class="flex items-start gap-3 p-4">
-          <div id="inputIcon" class="mt-1 text-[#A8A29E]">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <!-- Hero Section with Dynamic Background -->
+  <div id="heroSection" class="hero-section mb-8">
+    <div class="hero-content container mx-auto px-4 py-8 max-w-6xl">
+      <!-- Top bar with logo and recipes button -->
+      <div class="flex items-center justify-between mb-6">
+        <!-- Logo and name (top left) -->
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center shadow">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
             </svg>
           </div>
-          <div class="flex-1">
-            <textarea
-              id="smartInput"
-              placeholder="Paste a URL, describe an idea, or drop an image..."
-              class="w-full resize-none border-0 bg-transparent text-[#1C1917] placeholder-[#A8A29E] focus:outline-none focus:ring-0 text-base leading-relaxed"
-              rows="1"
-            ></textarea>
-            <div id="imagePreview" class="hidden mt-3">
-              <div class="relative inline-block">
-                <img id="previewImg" class="max-h-32 rounded-lg" />
-                <button
-                  id="removeImage"
-                  class="absolute -top-2 -right-2 w-6 h-6 bg-[#1C1917] text-white rounded-full flex items-center justify-center hover:bg-red-500 transition-colors"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
+          <h1 class="text-xl font-bold text-white drop-shadow">Spark</h1>
         </div>
-        <div class="flex items-center justify-between px-4 py-3 border-t border-[#E7E5E4] bg-[#FAFAF9]">
-          <div class="flex items-center gap-4 text-xs text-[#A8A29E]">
-            <span id="inputTypeHint">Type or paste anything</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <label class="cursor-pointer text-[#78716C] hover:text-brand-500 transition-colors p-2 rounded-lg hover:bg-brand-50">
-              <input type="file" id="imageUpload" accept="image/*" class="hidden" />
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-            </label>
-            <button
-              id="generateBtn"
-              class="bg-brand-500 hover:bg-brand-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed inline-flex items-center gap-2 text-sm"
-            >
-              <span id="generateBtnText">Generate</span>
-              <svg id="generateSpinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-      <div id="fetchStatus" class="mt-3 text-sm font-medium text-center"></div>
 
-      <!-- Quick actions -->
-      <div class="flex items-center justify-center gap-3 mt-4">
-        <button
-          id="phTodayBtn"
-          class="text-xs text-[#78716C] hover:text-brand-600 px-3 py-1.5 rounded-full bg-white border border-[#E7E5E4] hover:border-brand-300 transition-all"
-        >
-          Product Hunt today
-        </button>
-        <button
-          id="phDateBtn"
-          class="text-xs text-[#78716C] hover:text-brand-600 px-3 py-1.5 rounded-full bg-white border border-[#E7E5E4] hover:border-brand-300 transition-all inline-flex items-center gap-1.5"
-        >
-          <input
-            type="date"
-            id="datePicker"
-            class="bg-transparent border-0 text-xs p-0 w-24 focus:outline-none focus:ring-0 cursor-pointer"
-          />
-        </button>
+        <!-- Recipes button (top right) -->
+        <a href="/recipes.html" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-1.5 rounded-full bg-white hover:bg-gray-50 shadow-sm transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          Recipes
+        </a>
       </div>
 
-      <!-- Recipe Selector -->
-      <div class="flex items-center justify-center mt-4">
+      <!-- Recipe Pills (YouTube-style horizontal scroll) -->
+      <div class="max-w-3xl mx-auto mb-6">
         <div class="relative">
-          <button
-            id="recipeSelector"
-            class="inline-flex items-center gap-2 text-sm text-[#57534E] hover:text-brand-600 px-4 py-2 rounded-lg bg-white border border-[#E7E5E4] hover:border-brand-300 transition-all"
-          >
-            <svg class="w-4 h-4 text-[#A8A29E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-            </svg>
-            <span id="selectedRecipeName">Default</span>
-            <svg class="w-4 h-4 text-[#A8A29E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-          </button>
-          <div
-            id="recipeDropdown"
-            class="hidden absolute left-1/2 -translate-x-1/2 mt-2 w-64 bg-white rounded-xl shadow-lg border border-[#E7E5E4] py-2 z-50"
-          >
-            <!-- Recipes will be loaded here -->
+          <div id="recipePillsContainer" class="flex gap-2 overflow-x-auto scrollbar-hide py-1 px-1 justify-center flex-wrap">
+            <!-- Pills will be rendered here by JS -->
           </div>
         </div>
+      </div>
+
+      <!-- Adaptive Content Area -->
+      <div class="max-w-3xl mx-auto">
+        <div id="recipeContent" class="min-h-[100px]">
+          <!-- Content changes based on selected recipe -->
+        </div>
+        <div id="fetchStatus" class="mt-4 text-sm font-medium text-center text-white"></div>
       </div>
     </div>
+  </div>
 
+  <!-- Ideas Section -->
+  <div class="container mx-auto px-4 pb-12 max-w-6xl">
     <div id="ideasContainer" class="space-y-10">
       <!-- Ideas will be loaded here -->
     </div>
@@ -304,53 +296,431 @@
     let allIdeas = []; // All ideas from all dates
     let isLoading = false;
     let currentImage = null; // Base64 image data
-    let recipes = []; // All available recipes
-    let selectedRecipe = null; // Currently selected recipe
+    let recipes = []; // All available recipes (from DB)
+    let selectedRecipeId = 'producthunt'; // Currently selected recipe ID (string for built-in, number for user recipes)
 
-    // Smart input elements
-    const smartInput = document.getElementById('smartInput');
-    const inputTypeHint = document.getElementById('inputTypeHint');
-    const inputIcon = document.getElementById('inputIcon');
-    const generateBtn = document.getElementById('generateBtn');
-    const generateBtnText = document.getElementById('generateBtnText');
-    const generateSpinner = document.getElementById('generateSpinner');
+    // Built-in special recipes (hero images will be loaded from R2)
+    const BUILT_IN_RECIPES = [
+      {
+        id: 'producthunt',
+        name: 'Product Hunt',
+        type: 'producthunt',
+        special: true,
+        heroImageKey: 'producthunt' // Key to match in heroImages
+      },
+      {
+        id: 'custom',
+        name: 'Custom Input',
+        type: 'custom',
+        special: true,
+        heroImageKey: 'custom' // Key to match in heroImages
+      },
+    ];
+
+    // Hero images loaded from R2 (will be populated on init)
+    let heroImages = [];
+
+    // Fallback gradient if no images are available
+    const FALLBACK_GRADIENT = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+
+    // DOM elements
+    const heroSection = document.getElementById('heroSection');
+    const recipePillsContainer = document.getElementById('recipePillsContainer');
+    const recipeContent = document.getElementById('recipeContent');
     const fetchStatus = document.getElementById('fetchStatus');
     const ideasContainer = document.getElementById('ideasContainer');
     const loadingMore = document.getElementById('loadingMore');
     const noMore = document.getElementById('noMore');
-    const imageUpload = document.getElementById('imageUpload');
-    const imagePreview = document.getElementById('imagePreview');
-    const previewImg = document.getElementById('previewImg');
-    const removeImageBtn = document.getElementById('removeImage');
-    const phTodayBtn = document.getElementById('phTodayBtn');
-    const datePicker = document.getElementById('datePicker');
-    const recipeSelector = document.getElementById('recipeSelector');
-    const recipeDropdown = document.getElementById('recipeDropdown');
-    const selectedRecipeName = document.getElementById('selectedRecipeName');
 
-    // Detect input type
+    // Load hero images from R2
+    async function loadHeroImages() {
+      try {
+        const response = await fetch('/api/hero-images');
+        const data = await response.json();
+        heroImages = data.data?.images || data.images || [];
+      } catch (error) {
+        console.error('Error loading hero images:', error);
+        heroImages = [];
+      }
+    }
+
+    // Get hero image URL for a recipe
+    function getHeroImageUrl(recipeId) {
+      const builtIn = BUILT_IN_RECIPES.find(r => r.id === recipeId);
+      const userRecipe = recipes.find(r => r.id === recipeId);
+
+      // 1. If user recipe has a custom background_image_url, use it
+      if (userRecipe?.background_image_url) {
+        return userRecipe.background_image_url;
+      }
+
+      // 2. Try to find matching image in R2 by name
+      const keyToMatch = builtIn?.heroImageKey || (userRecipe ? `recipe-${userRecipe.id}` : null);
+      if (keyToMatch) {
+        const matchingImage = heroImages.find(img => img.name === keyToMatch);
+        if (matchingImage) {
+          return matchingImage.url;
+        }
+      }
+
+      // 3. For user recipes without custom image, rotate through available hero images
+      if (userRecipe && heroImages.length > 0) {
+        const userRecipeIndex = recipes.findIndex(r => r.id === recipeId);
+        // Filter to only "default" hero images (not recipe-specific ones)
+        const defaultImages = heroImages.filter(img => !img.name.startsWith('recipe-'));
+        if (defaultImages.length > 0) {
+          return defaultImages[userRecipeIndex % defaultImages.length].url;
+        }
+        // Fallback to any image
+        return heroImages[userRecipeIndex % heroImages.length].url;
+      }
+
+      // 4. Fallback - return null to use gradient
+      return null;
+    }
+
+    // Update hero background based on selected recipe
+    function updateHeroBackground() {
+      const imageUrl = getHeroImageUrl(selectedRecipeId);
+
+      if (imageUrl) {
+        heroSection.style.backgroundImage = `url('${imageUrl}')`;
+        heroSection.style.background = ''; // Clear any gradient
+      } else {
+        // Use fallback gradient
+        heroSection.style.backgroundImage = 'none';
+        heroSection.style.background = FALLBACK_GRADIENT;
+      }
+    }
+
+    // Detect input type for custom input
     function detectInputType(text) {
       if (!text.trim() && currentImage) return 'image';
       if (!text.trim()) return 'empty';
-
-      // URL detection
       const urlPattern = /^(https?:\/\/|www\.)/i;
       if (urlPattern.test(text.trim())) return 'url';
-
-      // Product Hunt URL
       if (text.includes('producthunt.com')) return 'producthunt';
-
       return 'prompt';
     }
 
-    // Update UI based on input type
+    // Render recipe pills
+    function renderRecipePills() {
+      recipePillsContainer.innerHTML = '';
+
+      // Add built-in recipes first
+      for (const recipe of BUILT_IN_RECIPES) {
+        const pill = document.createElement('button');
+        pill.className = `hero-recipe-pill special px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedRecipeId === recipe.id ? 'active' : ''}`;
+        pill.onclick = () => selectRecipe(recipe.id);
+        pill.innerHTML = recipe.name;
+        recipePillsContainer.appendChild(pill);
+      }
+
+      // Add user recipes
+      for (const recipe of recipes) {
+        const pill = document.createElement('button');
+        pill.className = `hero-recipe-pill px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedRecipeId === recipe.id ? 'active' : ''}`;
+        pill.onclick = () => selectRecipe(recipe.id);
+        pill.textContent = recipe.name;
+        recipePillsContainer.appendChild(pill);
+      }
+
+      // Add "+" button to create new recipe
+      const addPill = document.createElement('a');
+      addPill.href = '/recipes.html';
+      addPill.className = 'hero-recipe-pill px-3 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1';
+      addPill.innerHTML = `
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+      `;
+      recipePillsContainer.appendChild(addPill);
+    }
+
+    // Select a recipe and render its content
+    function selectRecipe(recipeId) {
+      selectedRecipeId = recipeId;
+      renderRecipePills();
+      renderRecipeContent();
+      updateHeroBackground();
+      fetchStatus.textContent = '';
+    }
+
+    // Render content area based on selected recipe
+    function renderRecipeContent() {
+      // Find the selected recipe
+      const builtIn = BUILT_IN_RECIPES.find(r => r.id === selectedRecipeId);
+      const userRecipe = recipes.find(r => r.id === selectedRecipeId);
+
+      if (builtIn?.type === 'producthunt') {
+        renderProductHuntContent();
+      } else if (builtIn?.type === 'custom') {
+        renderCustomInputContent();
+      } else if (userRecipe) {
+        renderUserRecipeContent(userRecipe);
+      }
+    }
+
+    // Render Product Hunt content
+    function renderProductHuntContent() {
+      recipeContent.innerHTML = `
+        <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+          <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-[#FFF1EB] flex items-center justify-center">
+            <svg class="w-7 h-7 text-[#DA552F]" fill="currentColor" viewBox="0 0 24 24"><path d="M13.604 8.4h-3.405V12h3.405c.995 0 1.801-.806 1.801-1.8 0-.995-.806-1.8-1.801-1.8zM12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm1.604 14.4h-3.405V18H7.801V6h5.804c2.319 0 4.2 1.881 4.2 4.2 0 2.319-1.881 4.2-4.201 4.2z"/></svg>
+          </div>
+          <p class="text-sm text-gray-600 mb-5">Generate ideas from today's top Product Hunt launches</p>
+          <button
+            id="generateBtn"
+            onclick="generateFromSelectedRecipe()"
+            class="bg-[#DA552F] hover:bg-[#C04B2A] text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed inline-flex items-center gap-2"
+          >
+            <span id="generateBtnText">Get Today's Ideas</span>
+            <svg id="generateSpinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </div>
+      `;
+    }
+
+    // Render Custom Input content
+    function renderCustomInputContent() {
+      recipeContent.innerHTML = `
+        <div
+          id="smartInputContainer"
+          class="bg-white rounded-xl shadow-lg focus-within:ring-2 focus-within:ring-brand-400 transition-all"
+        >
+          <div class="flex items-start gap-3 p-4">
+            <div id="inputIcon" class="mt-1 text-gray-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <textarea
+                id="smartInput"
+                placeholder="Paste a URL, describe an idea, or drop an image..."
+                class="w-full resize-none border-0 bg-transparent text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 text-base leading-relaxed"
+                rows="2"
+              ></textarea>
+              <div id="imagePreview" class="hidden mt-3">
+                <div class="relative inline-block">
+                  <img id="previewImg" class="max-h-32 rounded-lg" />
+                  <button
+                    id="removeImage"
+                    onclick="removeImage()"
+                    class="absolute -top-2 -right-2 w-6 h-6 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-red-500 transition-colors"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50 rounded-b-xl">
+            <div class="flex items-center gap-4 text-xs text-gray-500">
+              <span id="inputTypeHint">Type or paste anything</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="cursor-pointer text-gray-500 hover:text-brand-500 transition-colors p-2 rounded-lg hover:bg-brand-50">
+                <input type="file" id="imageUpload" accept="image/*" class="hidden" onchange="handleImageUploadEvent(event)" />
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </label>
+              <button
+                id="generateBtn"
+                onclick="generateFromSelectedRecipe()"
+                class="bg-brand-500 hover:bg-brand-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed inline-flex items-center gap-2 text-sm"
+              >
+                <span id="generateBtnText">Generate</span>
+                <svg id="generateSpinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Set up event listeners for the newly rendered elements
+      setupCustomInputListeners();
+    }
+
+    // Render user recipe content
+    function renderUserRecipeContent(recipe) {
+      const hasPromptStyle = !!recipe.prompt_style;
+      recipeContent.innerHTML = `
+        <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+          <h3 class="text-lg font-semibold text-gray-900 mb-1">${escapeHtml(recipe.name)}</h3>
+          ${recipe.description ? `<p class="text-sm text-gray-600 mb-4">${escapeHtml(recipe.description)}</p>` : '<div class="mb-4"></div>'}
+          ${recipe.prompt_style ? `<p class="text-xs text-gray-400 mb-5 italic max-w-md mx-auto">"${escapeHtml(recipe.prompt_style.substring(0, 100))}${recipe.prompt_style.length > 100 ? '...' : ''}"</p>` : '<p class="text-xs text-gray-400 mb-5 italic">No prompt style defined - <a href="/recipes.html" class="text-brand-500 hover:underline">edit recipe</a></p>'}
+          <button
+            id="generateBtn"
+            onclick="generateFromSelectedRecipe()"
+            class="bg-brand-500 hover:bg-brand-600 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed inline-flex items-center gap-2"
+            ${!hasPromptStyle ? 'disabled' : ''}
+          >
+            <span id="generateBtnText">Generate Ideas</span>
+            <svg id="generateSpinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </div>
+      `;
+    }
+
+    // Setup event listeners for custom input (called after rendering)
+    function setupCustomInputListeners() {
+      const smartInput = document.getElementById('smartInput');
+      const smartInputContainer = document.getElementById('smartInputContainer');
+
+      if (smartInput) {
+        smartInput.addEventListener('input', () => {
+          updateInputHint();
+          autoResize();
+        });
+        smartInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            generateFromSelectedRecipe();
+          }
+        });
+        smartInput.addEventListener('paste', handlePaste);
+      }
+
+      if (smartInputContainer) {
+        smartInputContainer.addEventListener('dragover', handleDragOver);
+        smartInputContainer.addEventListener('dragleave', handleDragLeave);
+        smartInputContainer.addEventListener('drop', handleDrop);
+      }
+
+      // Restore image if one was previously uploaded
+      if (currentImage) {
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        if (imagePreview && previewImg) {
+          previewImg.src = currentImage;
+          imagePreview.classList.remove('hidden');
+        }
+      }
+
+      updateInputHint();
+    }
+
+    // Generate from the selected recipe
+    async function generateFromSelectedRecipe() {
+      const btn = document.getElementById('generateBtn');
+      const btnText = document.getElementById('generateBtnText');
+      const btnSpinner = document.getElementById('generateSpinner');
+
+      if (btn) btn.disabled = true;
+      if (btnText) btnText.textContent = 'Generating...';
+      if (btnSpinner) btnSpinner.classList.remove('hidden');
+      fetchStatus.textContent = '';
+
+      try {
+        let response;
+
+        if (selectedRecipeId === 'producthunt') {
+          // Product Hunt
+          const today = new Date().toISOString().split('T')[0];
+          response = await fetch(`/api/fetch-ideas?date=${today}`, { method: 'POST' });
+        } else if (selectedRecipeId === 'custom') {
+          // Custom input
+          const smartInput = document.getElementById('smartInput');
+          const text = smartInput?.value.trim() || '';
+          const type = detectInputType(text);
+
+          if (type === 'empty') {
+            fetchStatus.innerHTML = `<span class="text-[#DC2626]">Please enter a URL, prompt, or upload an image</span>`;
+            if (btn) btn.disabled = false;
+            if (btnText) btnText.textContent = 'Generate';
+            if (btnSpinner) btnSpinner.classList.add('hidden');
+            return;
+          }
+
+          if (type === 'url' || type === 'producthunt') {
+            response = await fetch('/api/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'url', url: text }),
+            });
+          } else if (type === 'image' || currentImage) {
+            response = await fetch('/api/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'image', image: currentImage, prompt: text }),
+            });
+          } else {
+            response = await fetch('/api/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'prompt', prompt: text }),
+            });
+          }
+        } else {
+          // User recipe
+          response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'recipe', recipe_id: selectedRecipeId }),
+          });
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          const count = data.data?.count || data.count || 0;
+          const recipe = recipes.find(r => r.id === selectedRecipeId);
+          const sourceName = selectedRecipeId === 'producthunt' ? 'Product Hunt' :
+                            selectedRecipeId === 'custom' ? 'your input' :
+                            recipe?.name || 'recipe';
+          fetchStatus.innerHTML = `<span class="text-[#16A34A]">${count} new ideas from ${sourceName}!</span>`;
+
+          // Clear custom input if used
+          if (selectedRecipeId === 'custom') {
+            const smartInput = document.getElementById('smartInput');
+            if (smartInput) smartInput.value = '';
+            removeImage();
+            updateInputHint();
+          }
+
+          await loadAllIdeas();
+        } else {
+          const error = data.data?.error || data.error || 'Unknown error';
+          fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error}</span>`;
+        }
+      } catch (error) {
+        fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error.message}</span>`;
+      } finally {
+        if (btn) btn.disabled = false;
+        const originalText = selectedRecipeId === 'producthunt' ? "Get Today's Ideas" :
+                            selectedRecipeId === 'custom' ? 'Generate' : 'Generate Ideas';
+        if (btnText) btnText.textContent = originalText;
+        if (btnSpinner) btnSpinner.classList.add('hidden');
+      }
+    }
+
+    // Update input hint for custom input
     function updateInputHint() {
+      const smartInput = document.getElementById('smartInput');
+      const inputIcon = document.getElementById('inputIcon');
+      const inputTypeHint = document.getElementById('inputTypeHint');
+
+      if (!smartInput || !inputIcon || !inputTypeHint) return;
+
       const type = detectInputType(smartInput.value);
       const icons = {
         empty: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`,
         url: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>`,
         prompt: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>`,
-        image: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 4 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`,
+        image: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`,
         producthunt: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M13.604 8.4h-3.405V12h3.405c.995 0 1.801-.806 1.801-1.8 0-.995-.806-1.8-1.801-1.8zM12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm1.604 14.4h-3.405V18H7.801V6h5.804c2.319 0 4.2 1.881 4.2 4.2 0 2.319-1.881 4.2-4.201 4.2z"/></svg>`,
       };
       const hints = {
@@ -365,23 +735,26 @@
       inputTypeHint.textContent = hints[type] || hints.empty;
 
       if (type === 'url' || type === 'producthunt') {
-        inputIcon.classList.remove('text-[#A8A29E]');
+        inputIcon.classList.remove('text-gray-400');
         inputIcon.classList.add('text-brand-500');
       } else {
         inputIcon.classList.remove('text-brand-500');
-        inputIcon.classList.add('text-[#A8A29E]');
-      }
-
-      // Auto-select recipe based on input type
-      if (type !== 'empty') {
-        autoSelectRecipeForInputType(type);
+        inputIcon.classList.add('text-gray-400');
       }
     }
 
     // Auto-resize textarea
     function autoResize() {
+      const smartInput = document.getElementById('smartInput');
+      if (!smartInput) return;
       smartInput.style.height = 'auto';
       smartInput.style.height = Math.min(smartInput.scrollHeight, 150) + 'px';
+    }
+
+    // Handle image upload event
+    function handleImageUploadEvent(event) {
+      const file = event.target.files?.[0];
+      handleImageUpload(file);
     }
 
     // Handle image upload
@@ -391,11 +764,19 @@
       const reader = new FileReader();
       reader.onload = (e) => {
         currentImage = e.target.result;
-        previewImg.src = currentImage;
-        imagePreview.classList.remove('hidden');
-        updateInputHint();
-        // Auto-select image recipe if available
-        autoSelectRecipeForInputType('image');
+        // Switch to custom input if not already there
+        if (selectedRecipeId !== 'custom') {
+          selectRecipe('custom');
+        } else {
+          // Update the preview in current view
+          const imagePreview = document.getElementById('imagePreview');
+          const previewImg = document.getElementById('previewImg');
+          if (imagePreview && previewImg) {
+            previewImg.src = currentImage;
+            imagePreview.classList.remove('hidden');
+          }
+          updateInputHint();
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -403,105 +784,48 @@
     // Remove image
     function removeImage() {
       currentImage = null;
-      imagePreview.classList.add('hidden');
-      previewImg.src = '';
+      const imagePreview = document.getElementById('imagePreview');
+      const previewImg = document.getElementById('previewImg');
+      if (imagePreview) imagePreview.classList.add('hidden');
+      if (previewImg) previewImg.src = '';
       updateInputHint();
     }
 
-    // Generate ideas from smart input
-    async function generateFromInput() {
-      const text = smartInput.value.trim();
-      const type = detectInputType(text);
+    // Drag and drop handlers
+    function handleDragOver(e) {
+      e.preventDefault();
+      const container = document.getElementById('smartInputContainer');
+      if (container) container.classList.add('border-brand-400', 'bg-brand-50');
+    }
 
-      if (type === 'empty') {
-        fetchStatus.innerHTML = `<span class="text-[#DC2626]">Please enter a URL, prompt, or upload an image</span>`;
-        return;
-      }
+    function handleDragLeave(e) {
+      e.preventDefault();
+      const container = document.getElementById('smartInputContainer');
+      if (container) container.classList.remove('border-brand-400', 'bg-brand-50');
+    }
 
-      generateBtn.disabled = true;
-      generateBtnText.textContent = 'Generating...';
-      generateSpinner.classList.remove('hidden');
-      fetchStatus.textContent = '';
-
-      try {
-        let response;
-
-        const recipeId = selectedRecipe?.id;
-
-        if (type === 'url' || type === 'producthunt') {
-          response = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'url', url: text, recipe_id: recipeId }),
-          });
-        } else if (type === 'image' || currentImage) {
-          response = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'image', image: currentImage, prompt: text, recipe_id: recipeId }),
-          });
-        } else {
-          response = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'prompt', prompt: text, recipe_id: recipeId }),
-          });
-        }
-
-        const data = await response.json();
-
-        if (data.success) {
-          const count = data.data?.count || data.count || 0;
-          fetchStatus.innerHTML = `<span class="text-[#16A34A]">${count} new ideas generated!</span>`;
-          smartInput.value = '';
-          removeImage();
-          autoResize();
-          updateInputHint();
-          await loadAllIdeas();
-        } else {
-          const error = data.data?.error || data.error || 'Unknown error';
-          fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error}</span>`;
-        }
-      } catch (error) {
-        fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error.message}</span>`;
-      } finally {
-        generateBtn.disabled = false;
-        generateBtnText.textContent = 'Generate';
-        generateSpinner.classList.add('hidden');
+    function handleDrop(e) {
+      e.preventDefault();
+      const container = document.getElementById('smartInputContainer');
+      if (container) container.classList.remove('border-brand-400', 'bg-brand-50');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        handleImageUpload(file);
       }
     }
 
-    // Fetch from Product Hunt for a specific date
-    async function fetchProductHunt(date) {
-      generateBtn.disabled = true;
-      generateBtnText.textContent = 'Fetching...';
-      generateSpinner.classList.remove('hidden');
-      fetchStatus.textContent = '';
-
-      try {
-        const recipeId = selectedRecipe?.id;
-        const url = recipeId ? `/api/fetch-ideas?date=${date}&recipe_id=${recipeId}` : `/api/fetch-ideas?date=${date}`;
-        const response = await fetch(url, {
-          method: 'POST',
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          const formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-          const count = data.data?.count || data.count || 0;
-          fetchStatus.innerHTML = `<span class="text-[#16A34A]">${count} ideas from Product Hunt (${formattedDate})!</span>`;
-          await loadAllIdeas();
-        } else {
-          const error = data.data?.error || data.error || 'Unknown error';
-          fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error}</span>`;
+    // Handle paste for images
+    function handlePaste(e) {
+      const items = e.clipboardData?.items;
+      if (items) {
+        for (const item of items) {
+          if (item.type.startsWith('image/')) {
+            e.preventDefault();
+            const file = item.getAsFile();
+            handleImageUpload(file);
+            break;
+          }
         }
-      } catch (error) {
-        fetchStatus.innerHTML = `<span class="text-[#DC2626]">Error: ${error.message}</span>`;
-      } finally {
-        generateBtn.disabled = false;
-        generateBtnText.textContent = 'Generate';
-        generateSpinner.classList.add('hidden');
       }
     }
 
@@ -887,195 +1211,33 @@
       }
     }
 
-    // Load recipes for selector
+    // Load recipes from API
     async function loadRecipes() {
       try {
         const response = await fetch('/api/recipes');
         const data = await response.json();
         recipes = data.data || data || [];
-
-        // Set default recipe as selected if none selected
-        if (!selectedRecipe && recipes.length > 0) {
-          const defaultRecipe = recipes.find(r => r.is_default) || recipes[0];
-          selectRecipe(defaultRecipe);
-        }
-
-        renderRecipeDropdown();
+        renderRecipePills();
+        renderRecipeContent();
+        updateHeroBackground(); // Update in case recipe has custom background_image_url
       } catch (error) {
         console.error('Error loading recipes:', error);
       }
     }
 
-    // Render recipe dropdown
-    function renderRecipeDropdown() {
-      recipeDropdown.innerHTML = '';
-
-      for (const recipe of recipes) {
-        const item = document.createElement('button');
-        item.className = `w-full text-left px-4 py-2.5 text-sm hover:bg-[#F5F5F4] transition-colors ${
-          selectedRecipe?.id === recipe.id ? 'bg-brand-50 text-brand-700' : 'text-[#57534E]'
-        }`;
-        item.onclick = () => {
-          selectRecipe(recipe);
-          recipeDropdown.classList.add('hidden');
-        };
-
-        item.innerHTML = `
-          <div class="flex items-center justify-between">
-            <div>
-              <span class="font-medium">${escapeHtml(recipe.name)}</span>
-              ${recipe.is_default ? '<span class="ml-2 text-xs text-[#A8A29E]">(default)</span>' : ''}
-            </div>
-            ${selectedRecipe?.id === recipe.id ? `
-              <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-            ` : ''}
-          </div>
-          ${recipe.description ? `<p class="text-xs text-[#A8A29E] mt-0.5">${escapeHtml(recipe.description)}</p>` : ''}
-        `;
-
-        recipeDropdown.appendChild(item);
-      }
+    // Initialize the UI
+    async function initializeUI() {
+      // Load hero images first, then render
+      await loadHeroImages();
+      renderRecipePills();
+      renderRecipeContent();
+      updateHeroBackground();
+      loadAllIdeas();
+      loadRecipes();
     }
 
-    // Select a recipe
-    function selectRecipe(recipe) {
-      selectedRecipe = recipe;
-      selectedRecipeName.textContent = recipe.name;
-      renderRecipeDropdown();
-    }
-
-    // Find best recipe for a given source type
-    function findRecipeForSource(source) {
-      // First try to find a recipe with matching source
-      const matchingRecipe = recipes.find(r => r.source === source);
-      if (matchingRecipe) return matchingRecipe;
-
-      // Fall back to default recipe
-      return recipes.find(r => r.is_default) || recipes[0] || null;
-    }
-
-    // Auto-select recipe based on input type
-    function autoSelectRecipeForInputType(inputType) {
-      if (!recipes.length) return;
-
-      // Map input types to recipe sources
-      const sourceMap = {
-        'url': 'url',
-        'producthunt': 'producthunt',
-        'prompt': 'prompt',
-        'image': 'image'
-      };
-
-      const source = sourceMap[inputType];
-      if (!source) return;
-
-      const recipe = findRecipeForSource(source);
-      if (recipe && recipe.id !== selectedRecipe?.id) {
-        selectRecipe(recipe);
-      }
-    }
-
-    // Toggle recipe dropdown
-    function toggleRecipeDropdown() {
-      recipeDropdown.classList.toggle('hidden');
-    }
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!recipeSelector.contains(e.target) && !recipeDropdown.contains(e.target)) {
-        recipeDropdown.classList.add('hidden');
-      }
-    });
-
-    // Recipe selector click handler
-    recipeSelector.addEventListener('click', toggleRecipeDropdown);
-
-    // Event listeners for smart input
-    smartInput.addEventListener('input', () => {
-      updateInputHint();
-      autoResize();
-    });
-
-    smartInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        generateFromInput();
-      }
-    });
-
-    generateBtn.addEventListener('click', generateFromInput);
-
-    // Image handling
-    imageUpload.addEventListener('change', (e) => {
-      if (e.target.files[0]) {
-        handleImageUpload(e.target.files[0]);
-      }
-    });
-
-    removeImageBtn.addEventListener('click', removeImage);
-
-    // Drag and drop for images
-    const smartInputContainer = document.getElementById('smartInputContainer');
-    smartInputContainer.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      smartInputContainer.classList.add('border-brand-400', 'bg-brand-50');
-    });
-
-    smartInputContainer.addEventListener('dragleave', (e) => {
-      e.preventDefault();
-      smartInputContainer.classList.remove('border-brand-400', 'bg-brand-50');
-    });
-
-    smartInputContainer.addEventListener('drop', (e) => {
-      e.preventDefault();
-      smartInputContainer.classList.remove('border-brand-400', 'bg-brand-50');
-      const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith('image/')) {
-        handleImageUpload(file);
-      }
-    });
-
-    // Paste image from clipboard
-    smartInput.addEventListener('paste', (e) => {
-      const items = e.clipboardData?.items;
-      if (items) {
-        for (const item of items) {
-          if (item.type.startsWith('image/')) {
-            e.preventDefault();
-            const file = item.getAsFile();
-            handleImageUpload(file);
-            break;
-          }
-        }
-      }
-    });
-
-    // Quick action buttons
-    phTodayBtn.addEventListener('click', () => {
-      // Auto-select Product Hunt recipe if available
-      autoSelectRecipeForInputType('producthunt');
-      const today = new Date().toISOString().split('T')[0];
-      fetchProductHunt(today);
-    });
-
-    datePicker.addEventListener('change', () => {
-      if (datePicker.value) {
-        // Auto-select Product Hunt recipe if available
-        autoSelectRecipeForInputType('producthunt');
-        fetchProductHunt(datePicker.value);
-      }
-    });
-
-    // Initialize date picker with today's date as max
-    const today = new Date().toISOString().split('T')[0];
-    datePicker.max = today;
-    datePicker.value = today;
-
-    // Load all ideas and recipes on startup
-    loadAllIdeas();
-    loadRecipes();
+    // Start the app
+    initializeUI();
   </script>
 </body>
 </html>

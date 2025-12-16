@@ -5,7 +5,7 @@ import { getPromptFromRecipe } from '../utils/prompt';
 import type { Env, Idea, PagesFunctionContext, RecipeRow } from '../utils/types';
 
 interface GenerateRequest {
-  type: 'url' | 'prompt' | 'image';
+  type: 'url' | 'prompt' | 'image' | 'recipe';
   url?: string;
   prompt?: string;
   image?: string; // Base64 encoded image
@@ -90,6 +90,85 @@ For title_summaries:
 - Create a concise title for each idea (MAXIMUM 6 WORDS)
 - The title should capture the essence of the idea
 - Make it catchy and descriptive`;
+}
+
+// Build a standalone prompt from a recipe (no external source)
+function buildRecipeOnlyPrompt(promptStyle: string, exclusions?: string[]): string {
+  const defaultExclusions = [
+    'embedding external content (TikTok, YouTube, etc.)',
+    'video generation tools',
+    'A/B testing tools',
+  ];
+
+  const excludeList = exclusions && exclusions.length > 0 ? exclusions : defaultExclusions;
+  const exclusionLines = excludeList.map(e => `- NO ideas involving ${e}`).join('\n');
+
+  return `You are a creative indie hacker looking for weekend project ideas. Generate 3 unique project ideas based on the following criteria:
+
+IDEA STYLE/FOCUS:
+${promptStyle}
+
+IMPORTANT GUIDELINES:
+- Ideas should be buildable by a solo developer in a weekend
+${exclusionLines}
+- Each idea should be 1-2 sentences describing what it does and why it's useful
+- Be specific and actionable
+- Be creative and think outside the box
+
+Return a JSON object with this structure:
+{
+  "mini_ideas": ["first idea", "second idea", "third idea"],
+  "title_summaries": ["Short Title 1", "Short Title 2", "Short Title 3"]
+}
+
+For title_summaries:
+- Create a concise title for each idea (MAXIMUM 6 WORDS)
+- The title should capture the essence of the idea
+- Make it catchy and descriptive`;
+}
+
+// Generate ideas from a recipe alone (no external source)
+async function generateIdeasFromRecipe(
+  apiKey: string,
+  promptStyle: string,
+  exclusions?: string[]
+): Promise<{ mini_ideas: string[]; title_summaries: string[] }> {
+  const prompt = buildRecipeOnlyPrompt(promptStyle, exclusions);
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Claude API error: ${response.statusText} - ${error}`);
+  }
+
+  const data = await response.json();
+  const content = data.content[0].text;
+
+  // Extract JSON from the response
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error('Could not parse Claude response as JSON');
+  }
+
+  return JSON.parse(jsonMatch[0]);
 }
 
 // Get recipe settings from database
@@ -368,6 +447,40 @@ export const onRequestPost = async (context: PagesFunctionContext) => {
         name: ideas.source_name || 'Screenshot',
         description: ideas.source_description || body.prompt || 'Inspired by screenshot',
         url: '#screenshot',
+        mini_ideas: ideas.mini_ideas,
+        title_summaries: ideas.title_summaries,
+      });
+
+      return successResponse({ count: ideas.mini_ideas.length }, request);
+    }
+
+    if (body.type === 'recipe' && body.recipe_id) {
+      // Handle standalone recipe generation (no external source)
+      // First, get the recipe from the database
+      const recipe = await env.IDEAS_DB.prepare('SELECT * FROM recipes WHERE id = ?')
+        .bind(body.recipe_id)
+        .first() as RecipeRow | null;
+
+      if (!recipe) {
+        return errorResponse('Recipe not found', request, 404);
+      }
+
+      if (!recipe.prompt_style) {
+        return errorResponse('Recipe has no prompt style defined', request, 400);
+      }
+
+      const exclusions = recipe.exclusions ? JSON.parse(recipe.exclusions) : [];
+      const ideas = await generateIdeasFromRecipe(
+        env.ANTHROPIC_API_KEY,
+        recipe.prompt_style,
+        exclusions
+      );
+
+      await saveIdea(env.IDEAS_DB, {
+        date: today,
+        name: recipe.name,
+        description: recipe.description || recipe.prompt_style.substring(0, 100),
+        url: `#recipe-${recipe.id}`,
         mini_ideas: ideas.mini_ideas,
         title_summaries: ideas.title_summaries,
       });

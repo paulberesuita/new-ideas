@@ -123,22 +123,6 @@
               />
             </div>
 
-            <!-- Source -->
-            <div>
-              <label for="recipeSource" class="block text-sm font-medium text-[#57534E] mb-1.5">Source <span class="text-[#A8A29E] font-normal">(optional)</span></label>
-              <select
-                id="recipeSource"
-                class="w-full px-4 py-3 border border-[#E7E5E4] rounded-lg focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all text-[#1C1917] bg-white"
-              >
-                <option value="">Any source</option>
-                <option value="producthunt">Product Hunt</option>
-                <option value="url">URL / Website</option>
-                <option value="prompt">Text Prompt</option>
-                <option value="image">Image / Screenshot</option>
-              </select>
-              <p class="mt-1.5 text-xs text-[#A8A29E]">Auto-select this recipe when using a specific input type</p>
-            </div>
-
             <!-- Prompt Style -->
             <div>
               <label for="recipePromptStyle" class="block text-sm font-medium text-[#57534E] mb-1.5">Prompt Style</label>
@@ -226,7 +210,6 @@
     const recipeIdInput = document.getElementById('recipeId');
     const recipeNameInput = document.getElementById('recipeName');
     const recipeDescriptionInput = document.getElementById('recipeDescription');
-    const recipeSourceInput = document.getElementById('recipeSource');
     const recipePromptStyleInput = document.getElementById('recipePromptStyle');
     const exclusionsList = document.getElementById('exclusionsList');
     const newExclusionInput = document.getElementById('newExclusion');
@@ -265,21 +248,12 @@
           ? recipe.exclusions.slice(0, 3).join(', ') + (recipe.exclusions.length > 3 ? ` +${recipe.exclusions.length - 3} more` : '')
           : 'None';
 
-        const sourceLabels = {
-          producthunt: 'Product Hunt',
-          url: 'URL',
-          prompt: 'Prompt',
-          image: 'Image'
-        };
-        const sourceLabel = recipe.source ? sourceLabels[recipe.source] : null;
-
         card.innerHTML = `
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1 flex-wrap">
                 <h3 class="text-lg font-semibold text-[#1C1917] truncate">${escapeHtml(recipe.name)}</h3>
                 ${recipe.is_default ? '<span class="px-2 py-0.5 bg-brand-100 text-brand-700 text-xs font-medium rounded-full">Default</span>' : ''}
-                ${sourceLabel ? `<span class="px-2 py-0.5 bg-[#E0E7FF] text-[#4338CA] text-xs font-medium rounded-full">${sourceLabel}</span>` : ''}
               </div>
               ${recipe.description ? `<p class="text-sm text-[#78716C] mb-3">${escapeHtml(recipe.description)}</p>` : ''}
               <div class="flex flex-wrap gap-4 text-xs text-[#A8A29E]">
@@ -314,7 +288,6 @@
       recipeIdInput.value = '';
       recipeNameInput.value = '';
       recipeDescriptionInput.value = '';
-      recipeSourceInput.value = '';
       recipePromptStyleInput.value = '';
       currentExclusions = [];
       renderExclusions();
@@ -330,7 +303,6 @@
       recipeIdInput.value = recipe.id;
       recipeNameInput.value = recipe.name;
       recipeDescriptionInput.value = recipe.description || '';
-      recipeSourceInput.value = recipe.source || '';
       recipePromptStyleInput.value = recipe.prompt_style || '';
       currentExclusions = [...(recipe.exclusions || [])];
       renderExclusions();
@@ -397,7 +369,6 @@
       const recipeData = {
         name: recipeNameInput.value.trim(),
         description: recipeDescriptionInput.value.trim() || null,
-        source: recipeSourceInput.value || null,
         prompt_style: recipePromptStyleInput.value.trim() || null,
         exclusions: currentExclusions,
       };
